@@ -17,6 +17,9 @@ dependencies:
     sdk: flutter
   rxdart: ^0.18.0
   http: any
+  sqflite: any
+  path_provider: any
+  flutter_webview_plugin: ^0.3.0+2
 
 
   # The following adds the Cupertino Icons font to your application.
