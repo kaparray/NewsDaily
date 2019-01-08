@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/blocs/news_bloc.dart';
-import 'package:news_app/models/news_model.dart';
 
 class NewsList extends StatelessWidget {
   @override
@@ -13,6 +12,7 @@ class NewsList extends StatelessWidget {
         title: Text('News in US'),
       ),
       body: SafeArea(
+        bottom: false,
         child: StreamBuilder(
           stream: bloc.allNews,
           builder: (context, AsyncSnapshot<NewsModel> snapshot) {
