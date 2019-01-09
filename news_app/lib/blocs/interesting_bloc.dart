@@ -19,7 +19,12 @@ class InterestingBloc {
     DBHelper.get().newInterestingTheme(model);
     getInteresting();
   }
+
+  getAllInteresting() async{
+    _interestingController.sink.add(await DBHelper.get().getAllInteresting());
+
+  }
 }
 
 
-final bloc = InterestingBloc();
+final blocInteresting = InterestingBloc();

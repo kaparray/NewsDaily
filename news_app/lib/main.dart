@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/choose_interesting.dart';
 import 'package:news_app/blocs/interesting_bloc.dart';
+import 'resources/db_helper.dart';
 
 void main() {
-  bloc.getInteresting();
+  if (DBHelper.get().db == null)
+    blocInteresting.getInteresting();
+
   runApp(App());
 }
 

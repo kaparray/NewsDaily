@@ -49,4 +49,8 @@ class DBHelper {
     return table;
   }
 
+  Future getAllInteresting() async {
+    var table = await db.query("$tableName", where: "blocked = true");
+    return table.isNotEmpty ? InterestingModel.fromJson(table.first) : Null;
+  }
 }
