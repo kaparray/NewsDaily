@@ -16,8 +16,10 @@ class InterestingBloc {
   }
 
   add(InterestingModel model) {
-    DBHelper.get().db.newInteresting(model);
+    DBHelper.get().newInterestingTheme(model);
     getInteresting();
   }
-
 }
+
+
+final bloc = InterestingBloc();

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/blocs/interesting_bloc.dart';
+import 'package:news_app/models/add_news_to_interesting.dart';
 
 class _ListItem {
   _ListItem(this.value, this.checkState);
@@ -15,8 +17,9 @@ class ChoosInteresting extends StatefulWidget {
 }
 
 
-class ChoosInterestingState extends State<ChoosInteresting> {
 
+
+class ChoosInterestingState extends State<ChoosInteresting> {
   // ToDo add normal list with theme
   final List<_ListItem> _items = <String>[
     'Sport', 'Media', 'Politic', 'Other'
@@ -50,6 +53,10 @@ class ChoosInterestingState extends State<ChoosInteresting> {
       onChanged: (bool value) {
         setState((){
           item.checkState = value;
+              bloc.add(InterestingModel(1, 'hahaha', false));
+              bloc.add(InterestingModel(2, 'Kirill', false));
+              bloc.add(InterestingModel(3, 'Loh', true));
+              bloc.add(InterestingModel(4, 'Renad chmo', false));
         });
       },
     );

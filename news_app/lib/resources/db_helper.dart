@@ -25,10 +25,10 @@ class DBHelper {
     db = await openDatabase(path, version: 1,
     onCreate: (Database db, int version) async{
       await db.execute(
-        "CREATE TABLE $tableName"
-        "Id INTEGER PRIMARY KEY"
-        "news_type TEXT"
-        "blocked BIT"
+        "CREATE TABLE $tableName "
+        "(id INTEGER PRIMARY KEY, "
+        "news_type TEXT, "
+        "blocked BOOLEAN"
         ");"
         );
     });
@@ -39,12 +39,12 @@ class DBHelper {
 
     try {
       table = await db.rawInsert(
-        "INSERT INTO $tableName (Id, news_type, blocked)"
-        " VALUES (${model.Id}, ${model.news_type}, ${model.blocked});"
+        "INSERT INTO $tableName (id, news_type, blocked)"
+        " VALUES (${model.id}, '${model.news_type}', ${model.blocked})"
         );
-    } catch (Exeption ) {
+    } catch (e) {
       // ToDo make user notification
-      print('Database error');
+      print('Database error $e');
     }
     return table;
   }
