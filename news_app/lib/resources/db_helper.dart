@@ -19,6 +19,7 @@ class DBHelper {
 
 
   Future init() async {
+
     // Get a location usses path_provider
     Directory documentDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentDirectory.path, "local.db");
@@ -40,7 +41,7 @@ class DBHelper {
     try {
       table = await db.rawInsert(
         "INSERT INTO $tableName (id, news_type, blocked)"
-        " VALUES (${model.id}, '${model.news_type}', ${model.blocked})"
+        " VALUES (${model.id}, '${model.newsType}', ${model.blocked})"
         );
     } catch (e) {
       // ToDo make user notification

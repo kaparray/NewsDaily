@@ -1,7 +1,7 @@
 
 import 'dart:convert';
 
-int s_id = 0;
+int sId = 0;
 
 InterestingModel interestingFromJson(String str) {
   final jsonData = json.decode(str);
@@ -16,20 +16,20 @@ String interestingToJson(InterestingModel data) {
 class InterestingModel {
 
   int id;
-  String news_type;
+  String newsType;
   bool blocked;
 
-  InterestingModel({this.id, this.news_type, this.blocked});
+  InterestingModel({this.id, this.newsType, this.blocked});
 
   factory InterestingModel.fromJson(Map<String, dynamic> json) => new InterestingModel(
     id: json['id'],
-    news_type: json['news_type'],
+    newsType: json['newsType'],
     blocked: json['blocked']
   );
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'news_type': news_type,
+    'newsType': newsType,
     'blocked': blocked
   };
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/blocs/news_bloc.dart';
+import 'package:news_app/ui/web_view.dart';
 
 class NewsList extends StatelessWidget {
   @override
@@ -65,9 +65,7 @@ class NewsList extends StatelessWidget {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => new WebviewScaffold(
-                  url: model.url,
-                )));
+            builder: (context) => WebView(model: model)));
   }
 
   textItemBuild(BuildContext context, String text) {

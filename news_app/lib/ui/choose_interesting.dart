@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/blocs/interesting_bloc.dart';
 import 'package:news_app/models/add_news_to_interesting.dart';
-import 'package:news_app/ui/news_list.dart';
 
 class _ListItem {
   _ListItem(this.value, this.checkState);
@@ -26,6 +25,7 @@ class ChoosInterestingState extends State<ChoosInteresting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: fab(),
       appBar: AppBar(
         actions: <Widget>[
           IconButton(
@@ -43,16 +43,23 @@ class ChoosInterestingState extends State<ChoosInteresting> {
     );
   }
 
+  FloatingActionButton fab() {
+    return FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          //ToDo this is FAB
+        });
+  }
+
   saveToDB() {
     for (int i = 0; i < _items.length; i++) {
       if (_items[i].checkState)
         blocInteresting.add(InterestingModel(
-            id: s_id++,
-            news_type: _items[i].value,
+            id: sId++,
+            newsType: _items[i].value,
             blocked: _items[i].checkState));
     }
-    Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => NewsList()));
+    Navigator.pushReplacementNamed(context, "/news");
   }
 
   Scrollbar buildList() {
