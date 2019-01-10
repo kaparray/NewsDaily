@@ -18,17 +18,16 @@ startLogic() async {
   for (var fileOrDir in listContent)
   {
     if (fileOrDir is File && fileOrDir.path.split('/').last == 'local.db')
-    {
       runApp(App(false));
-    }
   }
   blocInteresting.getInteresting();
   runApp(App(true));
 }
 
+@immutable
 class App extends StatefulWidget {
 
-  bool _firstStart;
+  final bool _firstStart;
 
   App(this._firstStart);
 
