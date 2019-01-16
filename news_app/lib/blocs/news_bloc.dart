@@ -8,7 +8,7 @@ class NewsBloc {
 
   Observable<NewsModel> get allNews => _newsFetcher.stream;
 
-  fetchAllNews() async{
+  fetchAllNews() async {
     NewsModel newsModel = await _repository.fetchAllNews();
     _newsFetcher.sink.add(newsModel);
   }
