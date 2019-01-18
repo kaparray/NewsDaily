@@ -2,10 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/web_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 TextEditingController _tec = TextEditingController();
+Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-class NewsList extends StatelessWidget {
+class  NewsList extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return NewsListState();
+  }
+
+}
+
+class NewsListState extends State<NewsList> {
   @override
   Widget build(BuildContext context) {
     bloc.fetchAllNews();
@@ -26,6 +36,12 @@ class NewsList extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return _buildList(snapshot.data.articles);
+              } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
+                return SliverToBoxAdapter(
+                  child: Center(
+                    child: Text('Oppps! Error server'),
+                  ),
+                );
               } else {
                 return SliverToBoxAdapter(
                     child: Container(
@@ -43,45 +59,42 @@ class NewsList extends StatelessWidget {
       ),
     ));
   }
-// ClipRRect(
-//                             borderRadius: BorderRadius.all(Radius.circular(16.0)),
-
-
 
   _buildList(values) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-
         String url = values[index].urlToImage;
 
-        if (url == null) url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
+        if (url == null)
+          url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
         return Container(
           child: InkWell(
             onTap: () => openWebSite(context, values[index]),
             child: Card(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20)
-                ),
+                    borderRadius: BorderRadius.circular(20)),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
- decoration: BoxDecoration(
-                image: DecorationImage(
-                  colorFilter: ColorFilter.mode(
-                                        Colors.black54.withOpacity(
-                                          0.5),
-                                        BlendMode.hardLight),
-                    fit: BoxFit.cover, image: NetworkImage(url,)),
-              ),
-                  child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: <Widget>[
-                    textItemBuild(context, values[index].title),
-                  ],
-                ),
-                ),
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                          colorFilter: ColorFilter.mode(
+                              Colors.black54.withOpacity(0.5),
+                              BlendMode.hardLight),
+                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                            url,
+                          )),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: <Widget>[
+                        textItemBuild(context, values[index].title),
+                      ],
+                    ),
+                  ),
                 )),
           ),
         );
@@ -113,16 +126,17 @@ class NewsList extends StatelessWidget {
                       cursorColor: Colors.black54,
                       style: TextStyle(fontSize: 18, color: Colors.black54),
                       controller: TextEditingController(),
-                      onEditingComplete: () {},
+                      onSubmitted: (text) async {
+                        final SharedPreferences prefs = await _prefs;
+                        await prefs.setString("priorityTheme", text);
+                        setState(() {});
+                      },
                     ),
                   )))
         ]),
       ),
     );
   }
-
-
-
 
   openWebSite(BuildContext context, Articles model) {
     Navigator.push(context,
@@ -132,7 +146,7 @@ class NewsList extends StatelessWidget {
   textItemBuild(BuildContext context, String text) {
     return Container(
       height: 120,
-      width: MediaQuery.of(context).size.width * 0.6,
+      width: MediaQuery.of(context).size.width * 0.8,
       padding: const EdgeInsets.all(10.0),
       child: Text(
         text,

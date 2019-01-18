@@ -8,7 +8,9 @@ import 'package:path_provider/path_provider.dart';
 
 void main() {
 
-  startLogic();
+  //startLogic();
+
+  runApp(App(false));
 }
 
 
