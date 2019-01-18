@@ -14,7 +14,6 @@ class NewsApiProvider {
 
     final SharedPreferences prefs = await _prefs;
     String priorityTheme = prefs.getString("priorityTheme");
-    print(priorityTheme);
     String url = "https://newsapi.org/v2/top-headlines?q=$priorityTheme&country=us&apiKey=$_apiKey";
     if (priorityTheme == null) url = "https://newsapi.org/v2/top-headlines?country=us&apiKey=$_apiKey";
 

@@ -5,12 +5,22 @@ import 'package:news_app/ui/choose_interesting.dart';
 import 'package:news_app/blocs/interesting_bloc.dart';
 import 'package:news_app/ui/news_list.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
 
 void main() {
 
   //startLogic();
-
+  initApp();
   runApp(App(false));
+}
+
+initApp() async {
+  List<String> _list = [];
+  final SharedPreferences prefs = await _prefs;
+  prefs.setStringList("liked", _list);
 }
 
 

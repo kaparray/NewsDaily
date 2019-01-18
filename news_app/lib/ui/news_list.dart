@@ -3,6 +3,7 @@ import 'package:news_app/models/news_model.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/web_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:share/share.dart';
 
 TextEditingController _tec = TextEditingController();
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -21,6 +22,7 @@ class NewsListState extends State<NewsList> {
     bloc.fetchAllNews();
     return Scaffold(
         body: SafeArea(
+          top: false,
       child: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
@@ -35,7 +37,7 @@ class NewsListState extends State<NewsList> {
             stream: bloc.allNews,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return _buildList(snapshot.data.articles);
+                return _buildList(snapshot.data);
               } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
                 return SliverToBoxAdapter(
                   child: Center(
@@ -48,7 +50,7 @@ class NewsListState extends State<NewsList> {
                   padding: EdgeInsets.all(20),
                   child: Center(
                     child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
                     ),
                   ),
                 ));
@@ -60,16 +62,15 @@ class NewsListState extends State<NewsList> {
     ));
   }
 
-  _buildList(values) {
+  _buildList(NewsModel values) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-        String url = values[index].urlToImage;
+        String url = values.articles[index].urlToImage;
+        if (url == null) url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
 
-        if (url == null)
-          url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
         return Container(
           child: InkWell(
-            onTap: () => openWebSite(context, values[index]),
+            onTap: () => openWebSite(context,  values.articles[index]),
             child: Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)),
@@ -91,14 +92,20 @@ class NewsListState extends State<NewsList> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
-                        textItemBuild(context, values[index].title),
+                        textItemBuild(context,  values.articles[index].title),
+IconButton(
+                          icon: Icon(Icons.share, color: Colors.cyan,),
+                          onPressed: () {
+                             Share.share(values.articles[index].url);
+                          },
+                        )
                       ],
                     ),
                   ),
                 )),
           ),
         );
-      }, childCount: values.length),
+      }, childCount: values.articles.length),
     );
   }
 
@@ -127,7 +134,7 @@ class NewsListState extends State<NewsList> {
                       style: TextStyle(fontSize: 18, color: Colors.black54),
                       controller: TextEditingController(),
                       onSubmitted: (text) async {
-                        final SharedPreferences prefs = await _prefs;
+                        final SharedPreferences prefs = await _prefs; // Set into 'priorityTheme' data
                         await prefs.setString("priorityTheme", text);
                         setState(() {});
                       },
@@ -156,17 +163,4 @@ class NewsListState extends State<NewsList> {
     );
   }
 
-  imageItemBuild(BuildContext context, Articles model) {
-    String url =
-        'https://cdn-images-1.medium.com/max/1600/1*U8_90Kf74Oc0xRF8iOV6jw.png';
-    if (model.urlToImage != null) url = model.urlToImage;
-    return Container(
-        padding: EdgeInsets.all(4),
-        width: 100.0,
-        height: 100.0,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            image:
-                DecorationImage(fit: BoxFit.cover, image: NetworkImage(url))));
-  }
 }
