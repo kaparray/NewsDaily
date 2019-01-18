@@ -5,7 +5,7 @@ import '../models/news_model.dart';
 
 class NewsApiProvider {
   Client client = Client();
-  final _apiKey = '903abf18b5754ec5a7a3066f25442ec2';
+  final _apiKey = '53ea041b1e1c4c659b41767532da63f2';
 
   Future<NewsModel> fetchNewsList() async {
     print("entered");

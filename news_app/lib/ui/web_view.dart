@@ -14,12 +14,28 @@ class WebView extends StatefulWidget {
 }
 
 class WebViewState extends State<WebView> {
+
+  IconData icons = Icons.bookmark_border;
+
   @override
   Widget build(BuildContext context) {
     return WebviewScaffold(
+      withJavascript: false,
       url: widget.model.url,
       appBar: AppBar(
         title: Text('${widget.model.source.name}'),
+        actions: <Widget>[
+           IconButton(
+              icon: Icon(icons),
+              onPressed: () {
+
+                setState(() {
+                  if (icons == Icons.bookmark_border) icons = Icons.bookmark;
+                  else if (icons == Icons.bookmark) icons = Icons.bookmark_border;
+                });
+              },
+            ),
+        ],
       ),
     );
   }
