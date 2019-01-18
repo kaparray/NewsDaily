@@ -1,37 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:news_app/models/news_model.dart';
 import 'package:news_app/blocs/news_bloc.dart';
+import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/web_view.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:share/share.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-TextEditingController _tec = TextEditingController();
+
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-class  NewsList extends StatefulWidget {
+class NewsList extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    return NewsListState();
-  }
-
+  createState() => NewsListState();
 }
+
 
 class NewsListState extends State<NewsList> {
   @override
   Widget build(BuildContext context) {
-    bloc.fetchAllNews();
-    return Scaffold(
-        body: SafeArea(
-          top: false,
+    return SafeArea(
+      top: true,
+      bottom: false,
       child: CustomScrollView(
         slivers: <Widget>[
-          SliverAppBar(
-            floating: true,
-            flexibleSpace: FlexibleSpaceBar(
-              centerTitle: true,
-              title: Text('News in US'),
-            ),
-          ),
           _buildSearchBar(), // Serach
           StreamBuilder(
             stream: bloc.allNews,
@@ -59,18 +49,18 @@ class NewsListState extends State<NewsList> {
           ),
         ],
       ),
-    ));
+    );
   }
-
-  _buildList(NewsModel values) {
+_buildList(NewsModel values) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
         String url = values.articles[index].urlToImage;
-        if (url == null) url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
+        if (url == null)
+          url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
 
         return Container(
           child: InkWell(
-            onTap: () => openWebSite(context,  values.articles[index]),
+            onTap: () => openWebSite(context, values.articles[index]),
             child: Card(
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20)),
@@ -92,11 +82,14 @@ class NewsListState extends State<NewsList> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       textBaseline: TextBaseline.alphabetic,
                       children: <Widget>[
-                        textItemBuild(context,  values.articles[index].title),
-IconButton(
-                          icon: Icon(Icons.share, color: Colors.cyan,),
+                        textItemBuild(context, values.articles[index].title),
+                        IconButton(
+                          icon: Icon(
+                            Icons.share,
+                            color: Colors.cyan,
+                          ),
                           onPressed: () {
-                             Share.share(values.articles[index].url);
+                            Share.share(values.articles[index].url);
                           },
                         )
                       ],
@@ -134,7 +127,8 @@ IconButton(
                       style: TextStyle(fontSize: 18, color: Colors.black54),
                       controller: TextEditingController(),
                       onSubmitted: (text) async {
-                        final SharedPreferences prefs = await _prefs; // Set into 'priorityTheme' data
+                        final SharedPreferences prefs =
+                            await _prefs; // Set into 'priorityTheme' data
                         await prefs.setString("priorityTheme", text);
                         setState(() {});
                       },
@@ -162,5 +156,7 @@ IconButton(
       ),
     );
   }
-
 }
+
+
+

@@ -14,7 +14,7 @@ class WebView extends StatefulWidget {
   WebViewState createState() => WebViewState();
 }
 class WebViewState extends State<WebView> {
-  IconData icons = Icons.bookmark_border;
+  IconData icons;
   List<String> _listLiked = [];
   SharedPreferences prefs;
 
@@ -22,7 +22,8 @@ class WebViewState extends State<WebView> {
   initSharedPref() async {
     prefs = await widget._prefs;
      _listLiked = prefs.getStringList("liked");
-     if (_listLiked.indexOf(widget.model.url) >= 0) icons = Icons.bookmark;
+     if (_listLiked.indexOf(widget.model.url) >= 0) icons = Icons.favorite;
+     else icons = Icons.favorite_border;
   }
 
   @override
@@ -38,17 +39,16 @@ class WebViewState extends State<WebView> {
           IconButton(
             icon: Icon(icons),
             onPressed: () async {
-              if (icons == Icons.bookmark_border) {
+              if (_listLiked.indexOf(widget.model.url) < 0) {
+                setState(() {icons = Icons.favorite;});
                 _listLiked.add("${widget.model.url}");
                 await prefs.setStringList("liked", _listLiked);
-                icons = Icons.bookmark;
-              } else if (icons == Icons.bookmark) {
+              } else if (_listLiked.indexOf(widget.model.url) > 0) {
+                setState(() {icons = Icons.favorite_border;});
                 num index = _listLiked.indexOf(widget.model.url);
-                _listLiked.remove(index);
+                _listLiked.removeAt(index);
                 await prefs.setStringList("liked", _listLiked);
-                icons = Icons.bookmark_border;
               }
-              setState(() {});
             },
           ),
         ],
