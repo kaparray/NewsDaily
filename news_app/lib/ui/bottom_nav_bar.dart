@@ -27,7 +27,8 @@ class BottomNavBarState extends State<BottomNavBar> {
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(icon: Icon(Icons.chrome_reader_mode), title: Text('News')),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.chrome_reader_mode), title: Text('News')),
             BottomNavigationBarItem(
                 icon: Icon(Icons.favorite_border), title: Text('Favorit')),
             BottomNavigationBarItem(
