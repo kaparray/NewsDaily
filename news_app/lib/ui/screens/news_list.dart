@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/models/news_model.dart';
+import 'package:news_app/ui/views/search_bar.dart';
 import 'package:news_app/ui/web_view.dart';
 import 'package:share/share.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-
-Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 class NewsList extends StatefulWidget {
   @override
   createState() => NewsListState();
 }
-
 
 class NewsListState extends State<NewsList> {
   @override
@@ -22,7 +19,7 @@ class NewsListState extends State<NewsList> {
       bottom: false,
       child: CustomScrollView(
         slivers: <Widget>[
-          _buildSearchBar(), // Serach
+          buildSearchBar(context), // Serach
           StreamBuilder(
             stream: bloc.allNews,
             builder: (context, snapshot) {
@@ -51,6 +48,7 @@ class NewsListState extends State<NewsList> {
       ),
     );
   }
+
 _buildList(NewsModel values) {
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
@@ -99,43 +97,6 @@ _buildList(NewsModel values) {
           ),
         );
       }, childCount: values.articles.length),
-    );
-  }
-
-  _buildSearchBar() {
-    return SliverPadding(
-      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
-      sliver: SliverList(
-        delegate: SliverChildListDelegate([
-          Card(
-              color: Colors.transparent,
-              elevation: 8,
-              child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    color: Colors.cyan,
-                    child: TextField(
-                      decoration: InputDecoration(
-                          icon: Icon(Icons.search),
-                          border: InputBorder.none,
-                          hintStyle:
-                              TextStyle(fontSize: 18, color: Colors.black54),
-                          hintText: 'Search'),
-                      textInputAction: TextInputAction.search,
-                      cursorColor: Colors.black54,
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
-                      controller: TextEditingController(),
-                      onSubmitted: (text) async {
-                        final SharedPreferences prefs =
-                            await _prefs; // Set into 'priorityTheme' data
-                        await prefs.setString("priorityTheme", text);
-                        setState(() {});
-                      },
-                    ),
-                  )))
-        ]),
-      ),
     );
   }
 
