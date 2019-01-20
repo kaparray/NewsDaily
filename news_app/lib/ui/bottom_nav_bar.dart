@@ -45,6 +45,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   _onItemTapped(int index) {
     setState(() {
       _currentItem = index;
+      if (index == _currentItem && index == 0) NewsListState().backToStart();
     });
   }
 }

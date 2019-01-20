@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-buildSearchBar(BuildContext context, action) {
+buildSearchBar(BuildContext context) {
   return SliverPadding(
     padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
     sliver: SliverList(

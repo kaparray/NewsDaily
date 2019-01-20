@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../resources/repository.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
-
+ScrollController scrollController;
 
 class SearchScreen extends StatefulWidget {
   String title;
@@ -15,10 +16,28 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   @override
+  void initState() {
+    scrollController = ScrollController()..addListener(() {
+      print("offset = ${scrollController.offset}");
+      if (scrollController.offset > 1700) {
+        // ToDo listener and get next page on newsapi.org
+      }
+    });
+    super.initState();
+  }
+
+  @override
+    void dispose() {
+      scrollController.dispose();
+      super.dispose();
+    }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
+          controller: scrollController,
           slivers: <Widget>[
             _cuctomAppBar(),
             streamBuilderSearch(),

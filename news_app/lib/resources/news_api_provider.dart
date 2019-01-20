@@ -8,7 +8,6 @@ class NewsApiProvider {
   Client client = Client();
   Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-
   final _apiKey = '53ea041b1e1c4c659b41767532da63f2';
 
   // Chech shared preference, push requset to newsapi.org server and parse to model
