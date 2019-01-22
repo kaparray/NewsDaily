@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/models/objet_db_helper.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,10 @@ initApp() async {
   List<String> _list = [];
   final SharedPreferences prefs = await _prefs;
   prefs.setStringList("liked", _list);
+
+  ObjectDBHelper().createDB();
+  //ObjectDBHelper().addDatr();
+  //ObjectDBHelper().loadContactsFromDb();
 }
 
 @immutable

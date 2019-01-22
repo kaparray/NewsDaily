@@ -14,14 +14,11 @@ class NewsBloc {
 
 
   fetchAllNews() async {
-            print('BLOC11');
     NewsModel newsModel = await _repository.fetchAllNews();
     _newsFetcher.sink.add(newsModel);
   }
 
   fetchSearchNews() async {
-        print('BLOC222');
-
     NewsModel newsModel = await _repository.fetchSearchNews();
     _newsSearchFetcher.sink.add(newsModel);
   }

@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-buildSearchBar(BuildContext context) {
+buildSearchBar(BuildContext context, String state) {
   return SliverPadding(
     padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
     sliver: SliverList(
@@ -29,18 +29,27 @@ buildSearchBar(BuildContext context) {
                     style: TextStyle(fontSize: 18, color: Colors.black54),
                     controller: TextEditingController(),
                     onSubmitted: (text) {
-                      Navigator.popUntil(context, (route) {
-                        sarePref(text);
-                        Navigator.of(context).push(MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  SearchScreen(title: text,)));
-                      });
+                      setBareState(text, state, context);
                     },
                   ),
                 )))
       ]),
     ),
   );
+}
+
+setBareState(String text, String state, BuildContext context) {
+  if (state == 'liked') {
+    // ToDo liked logic
+  } else if (state == 'search') {
+    Navigator.popUntil(context, (route) {
+      sarePref(text);
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) => SearchScreen(
+                title: text,
+              )));
+    });
+  }
 }
 
 sarePref(text) async {
