@@ -28,7 +28,7 @@ class NewsListState extends State<NewsList> {
       child: CustomScrollView(
         controller: scrollControllerNewsList,
         slivers: <Widget>[
-          buildSearchBar(context, 'search'), // Serach
+          buildSearchBar(context), // Serach
           streamBuilder(),
         ],
       ),
