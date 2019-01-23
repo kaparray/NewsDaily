@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/models/news_model.dart';
-import 'package:news_app/ui/web_view.dart';
+import 'package:news_app/ui/screens/web_view.dart';
 import 'package:share/share.dart';
 
 buildList(NewsModel values) {

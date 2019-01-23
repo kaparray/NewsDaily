@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:news_app/models/objet_db_helper.dart';
+import 'package:news_app/resources/news_api_provider.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-
 void main() {
-
   initApp();
   runApp(App());
 }
@@ -17,9 +15,6 @@ initApp() async {
   final SharedPreferences prefs = await _prefs;
   prefs.setStringList("liked", _list);
 
-  ObjectDBHelper().createDB();
-  //ObjectDBHelper().addDatr();
-  //ObjectDBHelper().loadContactsFromDb();
 }
 
 @immutable
@@ -40,5 +35,4 @@ class AppState extends State<App> {
       },
     );
   }
-
 }

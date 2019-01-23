@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:news_app/ui/views/search_bar.dart';
+import 'package:flutter/material.dart';
 
 ScrollController scrollControllerLikedList;
 
@@ -11,7 +11,7 @@ class LikedList extends StatefulWidget {
 class LikedListState extends State<LikedList> {
   @override
   void initState() {
-    scrollControllerLikedList = ScrollController(initialScrollOffset: 50);
+    scrollControllerLikedList = ScrollController(initialScrollOffset: 84);
     super.initState();
   }
 

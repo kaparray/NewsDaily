@@ -4,6 +4,7 @@ import 'package:news_app/ui/screens/liked_list.dart';
 import 'package:news_app/ui/screens/news_list.dart';
 import 'package:news_app/ui/utils/back_to_start.dart';
 
+
 class BottomNavBar extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
