@@ -29,7 +29,6 @@ streamBuilder() {
   );
 }
 
-
 streamBuilderSearch() {
   return StreamBuilder(
     stream: bloc.searchNews,
@@ -57,3 +56,29 @@ streamBuilderSearch() {
   );
 }
 
+  streamBuilderLiked() {
+    return StreamBuilder(
+      stream: bloc.searchNews,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return buildList(snapshot.data);
+        } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
+          return SliverToBoxAdapter(
+            child: Center(
+              child: Text('Oppps! Error server'),
+            ),
+          );
+        } else {
+          return SliverToBoxAdapter(
+              child: Container(
+            padding: EdgeInsets.all(20),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+              ),
+            ),
+          ));
+        }
+      },
+    );
+}
