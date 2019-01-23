@@ -13,7 +13,9 @@ class Repository {
   Future<NewsModel> fetchSearchNews() => newsApiProvider.fetchSearchNews();
 
   //
+
   Future<NewsModel> fetchLikedNews() => newsApiProvider.getFavoriteNews();
+
 
 
   addFavorit(val) => newsApiProvider.addToFiresstore(val);

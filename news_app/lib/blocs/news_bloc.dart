@@ -19,6 +19,7 @@ class NewsBloc {
   }
 
 
+
   fetchAllNews() async {
     NewsModel newsModel = await _repository.fetchAllNews();
     _newsFetcher.sink.add(newsModel);
