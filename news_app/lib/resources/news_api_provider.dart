@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:http/http.dart' show Client;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -39,6 +38,19 @@ class NewsApiProvider {
     } else {
       throw Exception("Faild to post!");
     }
+  }
+
+
+   Future<NewsModel> getFavoriteNews() async {
+    final NewsModel nm = NewsModel();
+    List<Articles> list = List<Articles>();
+    var articles = await Firestore.instance.collection("users").document(await getMyUID()).get();
+    if(articles.data != null){
+      for (int i = 0; i < articles.data.length; i++)
+        list.add(Articles.fromJson(articles.data.values.toList()[i]));
+    }
+    nm.articles = list;
+    return nm;
   }
 
   generateUID() async {

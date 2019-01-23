@@ -54,7 +54,8 @@ class WebViewState extends State<WebView> {
         "urlToImage": widget.model.urlToImage,
         "title": widget.model.title,
         "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
       });
     } else if (_listLiked.indexOf(widget.model.url) >= 0) {
       icons = Icons.favorite_border;
@@ -66,7 +67,8 @@ class WebViewState extends State<WebView> {
         "urlToImage": widget.model.urlToImage,
         "title": widget.model.title,
         "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
       });
     }
     setState(() {});

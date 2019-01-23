@@ -26,6 +26,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     bloc.fetchAllNews();
     bloc.fetchSearchNews();
+    bloc.fetchLikedNews();
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
