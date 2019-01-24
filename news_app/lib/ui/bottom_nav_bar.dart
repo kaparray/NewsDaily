@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/blocs/news_bloc.dart';
+import 'package:news_app/ui/screens/liked_list.dart';
 import 'package:news_app/ui/screens/news_list.dart';
+import 'package:news_app/ui/utils/back_to_start.dart';
+
 
 class BottomNavBar extends StatefulWidget {
   @override
@@ -13,9 +16,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   num _currentItem = 0;
   final _listWidgets = [
     NewsList(),
-    Center(
-      child: Text('Comming soon...'),
-    ),
+    LikedList(),
     Center(
       child: Text('Comming soon...'),
     )
@@ -25,6 +26,7 @@ class BottomNavBarState extends State<BottomNavBar> {
   Widget build(BuildContext context) {
     bloc.fetchAllNews();
     bloc.fetchSearchNews();
+    bloc.fetchLikedNews();
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
@@ -44,8 +46,9 @@ class BottomNavBarState extends State<BottomNavBar> {
 
   _onItemTapped(int index) {
     setState(() {
+      if (index == _currentItem && index == 0) backToStart(scrollControllerNewsList);
+      if (index == _currentItem && index == 1) backToStart(scrollControllerLikedList);
       _currentItem = index;
-      if (index == _currentItem && index == 0) NewsListState().backToStart();
     });
   }
 }

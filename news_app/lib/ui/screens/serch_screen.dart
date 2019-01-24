@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../resources/repository.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 ScrollController scrollController;

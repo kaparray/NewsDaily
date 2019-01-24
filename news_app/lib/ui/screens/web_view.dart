@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:news_app/models/news_model.dart';
+import 'package:news_app/resources/news_api_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @immutable
@@ -32,7 +33,6 @@ class WebViewState extends State<WebView> {
   Widget build(BuildContext context) {
     initSharedPref(); // Get list from SharedProference
     return WebviewScaffold(
-      withJavascript: false,
       url: widget.model.url,
       appBar: AppBar(
         title: Text('${widget.model.source.name}'),
@@ -48,11 +48,27 @@ class WebViewState extends State<WebView> {
       icons = Icons.favorite;
       _listLiked.add("${widget.model.url}");
       await prefs.setStringList("liked", _listLiked);
+      await NewsApiProvider().addToFiresstore({
+        "url": widget.model.url,
+        "urlToImage": widget.model.urlToImage,
+        "title": widget.model.title,
+        "author": widget.model.author,
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
+      });
     } else if (_listLiked.indexOf(widget.model.url) >= 0) {
       icons = Icons.favorite_border;
       num index = _listLiked.indexOf(widget.model.url);
       _listLiked.removeAt(index);
       await prefs.setStringList("liked", _listLiked);
+      await NewsApiProvider().deliteFromFirestore({
+        "url": widget.model.url,
+        "urlToImage": widget.model.urlToImage,
+        "title": widget.model.title,
+        "author": widget.model.author,
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
+      });
     }
     setState(() {});
   }

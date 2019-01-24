@@ -4,17 +4,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-
-void main() {
-
-  initApp();
+void main() async {
+  await initApp();
   runApp(App());
 }
 
 initApp() async {
-  List<String> _list = [];
   final SharedPreferences prefs = await _prefs;
-  prefs.setStringList("liked", _list);
+  List<String> _list = [];
+
+  if (prefs.getBool('firtStart') == true) {
+    prefs.setStringList("liked", _list);
+    prefs.setBool('firtStart', false);
+  }
 }
 
 @immutable
@@ -35,5 +37,4 @@ class AppState extends State<App> {
       },
     );
   }
-
 }
