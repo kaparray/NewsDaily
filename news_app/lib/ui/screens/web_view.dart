@@ -33,7 +33,6 @@ class WebViewState extends State<WebView> {
   Widget build(BuildContext context) {
     initSharedPref(); // Get list from SharedProference
     return WebviewScaffold(
-      withJavascript: false,
       url: widget.model.url,
       appBar: AppBar(
         title: Text('${widget.model.source.name}'),

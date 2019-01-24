@@ -1,8 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:news_app/blocs/news_bloc.dart';
+import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/views/item_build.dart';
-import 'package:news_app/resources/news_api_provider.dart';
 
 streamBuilder() {
   return StreamBuilder(
@@ -58,7 +57,7 @@ streamBuilderSearch() {
   );
 }
 
-  streamBuilderLiked() {
+streamBuilderLiked() {
   return StreamBuilder(
     stream: bloc.likeNews,
     builder: (context, snapshot) {
@@ -83,5 +82,4 @@ streamBuilderSearch() {
       }
     },
   );
-
 }

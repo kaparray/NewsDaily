@@ -4,11 +4,19 @@ import 'package:news_app/ui/screens/web_view.dart';
 import 'package:share/share.dart';
 
 buildList(NewsModel values) {
-  return SliverList(
-    delegate: SliverChildBuilderDelegate(
-        (context, index) => _buildItem(values, context, index),
-        childCount: values.articles.length),
-  );
+  if (values.articles.length == 0) {
+    return SliverToBoxAdapter(
+        child: Container(
+      padding: EdgeInsets.all(20),
+      child: Center(child: Text('You didn\'t like anything', style: TextStyle(color: Colors.white, fontSize: 24))),
+    ));
+  } else {
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildItem(values, context, index),
+          childCount: values.articles.length),
+    );
+  }
 }
 
 _buildItem(NewsModel values, BuildContext context, int index) {

@@ -13,7 +13,6 @@ class Repository {
   Future<NewsModel> fetchSearchNews() => newsApiProvider.fetchSearchNews();
 
   //
-
   Future<NewsModel> fetchLikedNews() => newsApiProvider.getFavoriteNews();
 
 

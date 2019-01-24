@@ -1,4 +1,3 @@
-
 import 'package:news_app/ui/views/search_bar.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +30,7 @@ class LikedListState extends State<LikedList> {
         child: CustomScrollView(
           controller: scrollControllerLikedList,
           slivers: <Widget>[
-            buildSearchBar(context),
+            buildSearchBar(context, 'liked'),
             streamBuilderLiked()
           ],
         ),

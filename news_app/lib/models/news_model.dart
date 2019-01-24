@@ -47,7 +47,7 @@ class Articles {
       this.publishedAt,
       this.content});
 
-  Articles.fromJson(Map<dynamic, dynamic> json) {
+  Articles.fromJson(Map json) {
     source =
       json['source'] != null ? Source.fromJson(json['source']) : null;
     author = json['author'];
@@ -60,7 +60,7 @@ class Articles {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<dynamic, dynamic>();
+    final Map<String, dynamic> data = Map();
     if (this.source != null) {
       data['source'] = this.source.toJson();
     }
@@ -87,7 +87,7 @@ class Source {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<dynamic, dynamic>();
+    final Map<String, dynamic> data = new Map();
     data['id'] = this.id;
     data['name'] = this.name;
     return data;
