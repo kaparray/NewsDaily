@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +34,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bloc.fetchSearchNews();
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(

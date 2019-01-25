@@ -67,7 +67,7 @@ _buildItem(NewsModel values, BuildContext context, int index) {
 
 _openWebSite(BuildContext context, Articles model) {
   Navigator.push(
-      context, MaterialPageRoute(builder: (context) => WebView(model: model)));
+      context, MaterialPageRoute(builder: (context) => WebViewScreen(model: model)));
 }
 
 _textItemBuild(BuildContext context, String text) {

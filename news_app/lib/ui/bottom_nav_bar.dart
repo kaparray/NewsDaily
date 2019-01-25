@@ -24,9 +24,7 @@ class BottomNavBarState extends State<BottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchAllNews();
     bloc.fetchSearchNews();
-    bloc.fetchLikedNews();
     return Scaffold(
         bottomNavigationBar: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
@@ -35,7 +33,7 @@ class BottomNavBarState extends State<BottomNavBar> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.favorite_border), title: Text('Favorit'), activeIcon: Icon(Icons.favorite)),
             BottomNavigationBarItem(
-                icon: Icon(Icons.settings), title: Text('Settings'), activeIcon: Icon(Icons.settings_applications))
+                icon: Icon(Icons.settings), title: Text('Settings'))
           ],
           currentIndex: _currentItem,
           fixedColor: Colors.cyan,

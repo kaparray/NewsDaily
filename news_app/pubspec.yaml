@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
   rxdart: ^0.18.0
   http: any
-  flutter_webview_plugin: ^0.3.0+2
+  webview_flutter: ^0.3.0
   shared_preferences: ^0.4.3
   share: ^0.5.3
   cloud_firestore: ^0.8.2+3
