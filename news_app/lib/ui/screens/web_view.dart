@@ -1,21 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/resources/news_api_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 @immutable
-class WebView extends StatefulWidget {
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+class WebViewScreen extends StatefulWidget {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final Articles model;
 
-  WebView({this.model});
+  WebViewScreen({this.model});
 
   @override
   WebViewState createState() => WebViewState();
 }
 
-class WebViewState extends State<WebView> {
+class WebViewState extends State<WebViewScreen> {
   IconData icons;
   List<String> _listLiked = [];
   SharedPreferences prefs;
@@ -27,18 +29,22 @@ class WebViewState extends State<WebView> {
       icons = Icons.favorite;
     else
       icons = Icons.favorite_border;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    initSharedPref(); // Get list from SharedProference
-    return WebviewScaffold(
-      url: widget.model.url,
+    initSharedPref();
+    return Scaffold(
       appBar: AppBar(
         title: Text('${widget.model.source.name}'),
         actions: <Widget>[
           IconButton(icon: Icon(icons), onPressed: () => _likeUiLogi()),
         ],
+      ),
+      body: WebView(
+        initialUrl: widget.model.url,
+        javascriptMode: JavascriptMode.unrestricted,
       ),
     );
   }
