@@ -10,12 +10,24 @@ class NewsApiProvider {
   Client client = Client();
   final _prefs = SharedPreferences.getInstance();
 
+  String cntry = 'us';
+
   final _apiKey = 'ead93fedf9574cd0ab03790d1817a1f6';
 
   // Chech shared preference, push requset to newsapi.org server and parse to model
   Future<NewsModel> fetchNewsList() async {
+    final SharedPreferences pref = await _prefs;
+    String country = pref.getString('country');
+
+
+    if (country == 'Russia') cntry = 'ru';
+    else if (country == 'US') cntry = 'us';
+    else if (country == 'Germany') cntry = 'de';
+    else if (country == 'United Kingdom') cntry = 'gb';
+    else if (country == 'France') cntry = 'fr';
+
     String url =
-        "https://newsapi.org/v2/top-headlines?country=us&apiKey=$_apiKey";
+        "https://newsapi.org/v2/top-headlines?country=$cntry&apiKey=$_apiKey";
 
     final response = await client.get(url);
     if (response.statusCode == 200) {

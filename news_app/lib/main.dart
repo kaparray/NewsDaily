@@ -13,10 +13,9 @@ void main() async {
 initApp() async {
   final SharedPreferences prefs = await _prefs;
   List<String> _list = [];
-
-  if (prefs.getBool('firtStart') == true) {
+  if (prefs.getBool('firtStart') == null) {
     await prefs.setStringList('liked', _list);
-    await prefs.setString('lang', 'English');
+    await prefs.setString('country', 'English');
     await prefs.setBool('firtStart', false);
   }
 }
@@ -35,7 +34,6 @@ class AppState extends State<App> {
         defaultBrightness: Brightness.dark,
         data: (brightness) => ThemeData(
               brightness: brightness,
-              accentColor: Colors.cyan
             ),
         themedWidgetBuilder: (context, theme) {
           return MaterialApp(

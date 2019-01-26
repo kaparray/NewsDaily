@@ -25,7 +25,6 @@ class WebViewState extends State<WebViewScreen> {
   initSharedPref() async {
     prefs = await widget._prefs;
     _listLiked = prefs.getStringList("liked");
-    print(_listLiked);
     if (_listLiked.indexOf(widget.model.url) >= 0)
       icons = Icons.favorite;
     else

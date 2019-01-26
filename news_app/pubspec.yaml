@@ -24,6 +24,7 @@ dependencies:
   uuid: ^1.0.3
   dynamic_theme: ^1.0.0
   flutter_picker: ^1.0.6
+  flutter_material_color_picker: ^0.0.4
 
 
   # The following adds the Cupertino Icons font to your application.

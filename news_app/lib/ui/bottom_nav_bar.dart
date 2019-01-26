@@ -44,6 +44,7 @@ class BottomNavBarState extends State<BottomNavBar> {
     setState(() {
       if (index == _currentItem && index == 0) backToStart(scrollControllerNewsList);
       if (index == _currentItem && index == 1) backToStart(scrollControllerLikedList);
+      if (index == _currentItem && index == 2) backToStart(scrollControllerSettings);
       _currentItem = index;
     });
   }
