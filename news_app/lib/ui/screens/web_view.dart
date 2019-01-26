@@ -37,6 +37,7 @@ class WebViewState extends State<WebViewScreen> {
     initSharedPref();
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).accentColor,
         title: Text('${widget.model.source.name}'),
         actions: <Widget>[
           IconButton(icon: Icon(icons), onPressed: () => _likeUiLogi()),
