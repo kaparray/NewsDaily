@@ -88,7 +88,8 @@ class SettingsState extends State<SettingsScreen> {
     });
   }
 
-  changeTheme(value) {
+  changeTheme(value) async {
+    final SharedPreferences prefs = await _prefs;
     DynamicTheme.of(context).setThemeData(ThemeData(
         accentColor: Theme.of(context).accentColor,
         brightness: Theme.of(context).brightness == Brightness.dark
@@ -97,6 +98,7 @@ class SettingsState extends State<SettingsScreen> {
     setState(() {
       switchTheme = value;
     });
+    await prefs.setString('theme', switchTheme ? 'dark' : 'light');
   }
 
   initCountry() async {
@@ -107,6 +109,9 @@ class SettingsState extends State<SettingsScreen> {
   }
 
   showPickerArray(BuildContext context) async {
+    final SharedPreferences prefs = await _prefs;
+    String country = prefs.getString('country');
+    int selected = 0;
     Color textStyle = Theme.of(context).brightness == Brightness.dark
         ? Colors.white
         : Colors.grey[800];
@@ -114,8 +119,15 @@ class SettingsState extends State<SettingsScreen> {
         ? Colors.grey[800]
         : Colors.white;
 
-    final SharedPreferences prefs = await _prefs;
+
+    if (country == 'Russia') selected = 0;
+    else if (country == 'US') selected = 1;
+    else if (country == 'United Kingdom') selected = 2;
+    else if (country == 'Germany') selected = 3;
+    else if (country == 'France') selected = 4;
+
     Picker(
+      selecteds: [selected],
         textStyle: TextStyle(color: textStyle, fontSize: 24),
         backgroundColor: backgroundColor,
         adapter: PickerDataAdapter<String>(
@@ -133,14 +145,17 @@ class SettingsState extends State<SettingsScreen> {
         }).showDialog(context);
   }
 
-  changePrimaryColor() {
-    Color local;
+  changePrimaryColor() async {
+    final SharedPreferences prefs = await _prefs;
+    Color local = Color(prefs.getInt('color') ?? 0xFF26A69A);
+
     showDialog(
         context: context,
         child: SimpleDialog(
           title: Text('Primary color', style: TextStyle(fontSize: 24)),
           children: <Widget>[
             MaterialColorPicker(
+              selectedColor: local,
                 onColorChange: (Color color) {
                   local = color;
                 },
@@ -170,10 +185,11 @@ class SettingsState extends State<SettingsScreen> {
                     },
                     child: Text("Cancel")),
                 FlatButton(
-                    onPressed: () {
+                    onPressed: () async {
                       DynamicTheme.of(context).setThemeData(ThemeData(
                           accentColor: local,
                           brightness: Theme.of(context).brightness));
+                      await prefs.setInt('color', local.value);
                       Navigator.pop(context, false);
                     },
                     child: Text("Confirm"))

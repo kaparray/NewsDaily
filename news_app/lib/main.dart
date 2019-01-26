@@ -5,6 +5,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
+int color;
+String theme;
+
 void main() async {
   await initApp();
   runApp(App());
@@ -15,8 +18,13 @@ initApp() async {
   List<String> _list = [];
   if (prefs.getBool('firtStart') == null) {
     await prefs.setStringList('liked', _list);
-    await prefs.setString('country', 'English');
+    await prefs.setString('country', 'US');
     await prefs.setBool('firtStart', false);
+    await prefs.setInt('color', 0xFF26A69A);
+    await prefs.setString('theme', 'light');
+  } else if (prefs.getBool('firtStart') == false) {
+    color = prefs.getInt('color');
+    theme = prefs.getString('theme');
   }
 }
 
@@ -28,12 +36,19 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
 
+  Brightness _brightness;
+
   @override
   Widget build(BuildContext context) {
+    if (theme == 'dark') _brightness = Brightness.dark;
+    else if (theme == 'light') _brightness = Brightness.light;
+
+
     return DynamicTheme(
-        defaultBrightness: Brightness.dark,
+        defaultBrightness: _brightness,
         data: (brightness) => ThemeData(
-              brightness: brightness,
+              brightness: _brightness,
+              accentColor: Color(color ?? 0xFF26A69A)
             ),
         themedWidgetBuilder: (context, theme) {
           return MaterialApp(
