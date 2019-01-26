@@ -8,7 +8,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 @immutable
 class WebViewScreen extends StatefulWidget {
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final Articles model;
 
   WebViewScreen({this.model});
@@ -25,6 +25,7 @@ class WebViewState extends State<WebViewScreen> {
   initSharedPref() async {
     prefs = await widget._prefs;
     _listLiked = prefs.getStringList("liked");
+    print(_listLiked);
     if (_listLiked.indexOf(widget.model.url) >= 0)
       icons = Icons.favorite;
     else

@@ -26,12 +26,13 @@ class NewsListState extends State<NewsList> {
   @override
   Widget build(BuildContext context) {
     bloc.fetchAllNews();
+    setState(() {});
     return SafeArea(
       child: CustomScrollView(
         controller: scrollControllerNewsList,
         slivers: <Widget>[
           buildSearchBar(context, 'search'), // Serach
-          streamBuilder(),
+          streamBuilder(bloc.allNews),
         ],
       ),
     );

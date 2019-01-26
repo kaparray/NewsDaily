@@ -22,6 +22,8 @@ dependencies:
   share: ^0.5.3
   cloud_firestore: ^0.8.2+3
   uuid: ^1.0.3
+  dynamic_theme: ^1.0.0
+  flutter_picker: ^1.0.6
 
 
   # The following adds the Cupertino Icons font to your application.

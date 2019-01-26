@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:news_app/blocs/news_bloc.dart';
-import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/views/item_build.dart';
 
-streamBuilder() {
+streamBuilder(val) {
   return StreamBuilder(
-    stream: bloc.allNews,
+    stream: val,
     builder: (context, snapshot) {
       if (snapshot.hasData) {
-        return buildList(snapshot.data);
+        return buildListSliver(snapshot.data, context);
       } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
         return SliverToBoxAdapter(
           child: Center(
@@ -21,61 +19,7 @@ streamBuilder() {
           padding: EdgeInsets.all(20),
           child: Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-            ),
-          ),
-        ));
-      }
-    },
-  );
-}
-
-streamBuilderSearch() {
-  return StreamBuilder(
-    stream: bloc.searchNews,
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        return buildList(snapshot.data);
-      } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
-        return SliverToBoxAdapter(
-          child: Center(
-            child: Text('Oppps! Error server'),
-          ),
-        );
-      } else {
-        return SliverToBoxAdapter(
-            child: Container(
-          padding: EdgeInsets.all(20),
-          child: Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-            ),
-          ),
-        ));
-      }
-    },
-  );
-}
-
-streamBuilderLiked() {
-  return StreamBuilder(
-    stream: bloc.likeNews,
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        return buildList(snapshot.data);
-      } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
-        return SliverToBoxAdapter(
-          child: Center(
-            child: Text('Oppps! Error server'),
-          ),
-        );
-      } else {
-        return SliverToBoxAdapter(
-            child: Container(
-          padding: EdgeInsets.all(20),
-          child: Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
             ),
           ),
         ));

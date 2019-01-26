@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
-import 'package:news_app/ui/screens/serch_screen.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -15,8 +15,9 @@ initApp() async {
   List<String> _list = [];
 
   if (prefs.getBool('firtStart') == true) {
-    prefs.setStringList("liked", _list);
-    prefs.setBool('firtStart', false);
+    await prefs.setStringList('liked', _list);
+    await prefs.setString('lang', 'English');
+    await prefs.setBool('firtStart', false);
   }
 }
 
@@ -27,15 +28,24 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> {
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BottomNavBar(),
-      theme: ThemeData.dark(),
-      routes: {
-        "/news": (_) => BottomNavBar(),
-      },
-    );
+    return DynamicTheme(
+        defaultBrightness: Brightness.dark,
+        data: (brightness) => ThemeData(
+              brightness: brightness,
+              accentColor: Colors.cyan
+            ),
+        themedWidgetBuilder: (context, theme) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: BottomNavBar(),
+            theme: theme,
+            routes: {
+              "/news": (_) => BottomNavBar(),
+            },
+          );
+        });
   }
 }

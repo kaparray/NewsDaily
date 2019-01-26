@@ -16,7 +16,7 @@ buildSearchBar(BuildContext context, String type) {
                 borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  color: Colors.cyan,
+                  color: Theme.of(context).accentColor,
                   child: TextField(
                     decoration: InputDecoration(
                         icon: Icon(Icons.search),
@@ -39,12 +39,6 @@ buildSearchBar(BuildContext context, String type) {
 searchLogic(BuildContext context, String type, String text) {
   if (type == 'liked') {
     // ToDo
-    // Navigator.popUntil(context, (route) {
-    //   Navigator.of(context).push(MaterialPageRoute(
-    //       builder: (BuildContext context) => Web(
-    //             title: text,
-    //           )));
-    // });
   } else if (type == 'search') {
     Navigator.popUntil(context, (route) {
       sarePref(text);

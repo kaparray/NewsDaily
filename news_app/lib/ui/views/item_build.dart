@@ -3,12 +3,14 @@ import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/screens/web_view.dart';
 import 'package:share/share.dart';
 
-buildList(NewsModel values) {
+buildListSliver(NewsModel values, BuildContext context) {
   if (values.articles.length == 0) {
     return SliverToBoxAdapter(
         child: Container(
       padding: EdgeInsets.all(20),
-      child: Center(child: Text('You didn\'t like anything', style: TextStyle(color: Colors.white, fontSize: 24))),
+      child: Center(
+          child: Text('You didn\'t like anything',
+              style: TextStyle(color: Theme.of(context).accentColor, fontSize: 24))),
     ));
   } else {
     return SliverList(
@@ -34,6 +36,12 @@ _buildItem(NewsModel values, BuildContext context, int index) {
             borderRadius: BorderRadius.circular(20),
             child: Container(
               decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: <Color>[
+                    Theme.of(context).accentColor,
+                    Theme.of(context).brightness == Brightness.dark ? Colors.black : Colors.grey
+                  ]
+                ),
                 image: DecorationImage(
                     colorFilter: ColorFilter.mode(
                         Colors.black54.withOpacity(0.5), BlendMode.hardLight),
@@ -51,7 +59,7 @@ _buildItem(NewsModel values, BuildContext context, int index) {
                   IconButton(
                     icon: Icon(
                       Icons.share,
-                      color: Colors.cyan,
+                      color: Theme.of(context).accentColor,
                     ),
                     onPressed: () {
                       Share.share(values.articles[index].url);
@@ -66,8 +74,8 @@ _buildItem(NewsModel values, BuildContext context, int index) {
 }
 
 _openWebSite(BuildContext context, Articles model) {
-  Navigator.push(
-      context, MaterialPageRoute(builder: (context) => WebViewScreen(model: model)));
+  Navigator.push(context,
+      MaterialPageRoute(builder: (context) => WebViewScreen(model: model)));
 }
 
 _textItemBuild(BuildContext context, String text) {
@@ -78,7 +86,7 @@ _textItemBuild(BuildContext context, String text) {
     child: Text(
       text,
       textAlign: TextAlign.justify,
-      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
     ),
   );
 }
