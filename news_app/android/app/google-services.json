@@ -8,9 +8,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:145757579857:android:6bd10cff4af98295",
+        "mobilesdk_app_id": "1:145757579857:android:8e57a176bac48fcb",
         "android_client_info": {
-          "package_name": "com.example.newsapp"
+          "package_name": "com.kaparray.newsapp"
         }
       },
       "oauth_client": [
