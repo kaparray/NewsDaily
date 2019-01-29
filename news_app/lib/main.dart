@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
 import 'package:dynamic_theme/dynamic_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,7 @@ initApp() async {
     await prefs.setBool('firtStart', false);
     await prefs.setInt('color', 0xFF26A69A);
     await prefs.setString('theme', 'light');
+    await prefs.setBool('browser', true);
   } else if (prefs.getBool('firtStart') == false) {
     color = prefs.getInt('color');
     theme = prefs.getString('theme');
@@ -35,21 +37,24 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> {
-
   Brightness _brightness;
 
   @override
-  Widget build(BuildContext context) {
-    if (theme == 'dark') _brightness = Brightness.dark;
-    else if (theme == 'light') _brightness = Brightness.light;
+  void dispose() {
+    bloc.dispose();
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    if (theme == 'dark')
+      _brightness = Brightness.dark;
+    else if (theme == 'light') _brightness = Brightness.light;
 
     return DynamicTheme(
         defaultBrightness: _brightness,
         data: (brightness) => ThemeData(
-              brightness: _brightness,
-              accentColor: Color(color ?? 0xFF26A69A)
-            ),
+            brightness: _brightness, accentColor: Color(color ?? 0xFF26A69A)),
         themedWidgetBuilder: (context, theme) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,

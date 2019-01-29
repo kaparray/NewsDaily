@@ -18,6 +18,7 @@ dependencies:
   rxdart: ^0.18.0
   http: any
   webview_flutter: ^0.3.0
+  url_launcher: ^4.2.0+1
   shared_preferences: ^0.4.3
   share: ^0.5.3
   cloud_firestore: ^0.8.2+3
