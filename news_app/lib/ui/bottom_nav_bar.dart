@@ -42,9 +42,12 @@ class BottomNavBarState extends State<BottomNavBar> {
 
   _onItemTapped(int index) {
     setState(() {
-      if (index == _currentItem && index == 0) backToStart(scrollControllerNewsList);
-      if (index == _currentItem && index == 1) backToStart(scrollControllerLikedList);
-      if (index == _currentItem && index == 2) backToStart(scrollControllerSettings);
+      if (index == _currentItem && index == 0)
+        backToStart(scrollControllerNewsList);
+      if (index == _currentItem && index == 1)
+        backToStart(scrollControllerLikedList);
+      if (index == _currentItem && index == 2)
+        backToStart(scrollControllerSettings);
       _currentItem = index;
     });
   }

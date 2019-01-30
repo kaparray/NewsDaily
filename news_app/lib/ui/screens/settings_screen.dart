@@ -15,8 +15,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsState extends State<SettingsScreen> {
-  bool switchTheme = false;
+  bool swBrowser = false;
+  bool swTheme = false;
   String country = '';
+  Color _local = Color(0x000);
 
   @override
   void initState() {
@@ -32,8 +34,7 @@ class SettingsState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    initTheme();
-    initCountry();
+    initStateCustome();
     return SafeArea(
       child: SingleChildScrollView(
         controller: scrollControllerSettings,
@@ -60,7 +61,9 @@ class SettingsState extends State<SettingsScreen> {
               trailing: Switch(
                 activeColor: Theme.of(context).accentColor,
                 onChanged: (bool value) => changeTheme(value),
-                value: switchTheme,
+                value: Theme.of(context).brightness == Brightness.dark
+                    ? swTheme = true
+                    : swTheme = false,
               ),
             ),
             Divider(), // Divider
@@ -72,44 +75,55 @@ class SettingsState extends State<SettingsScreen> {
             Divider(), // Divider
             ListTile(
               title: Text('Primary color'),
+              trailing: Container(
+                child: CircleColor(
+                  color: _local,
+                  circleSize: 50,
+                ),
+              ),
               onTap: () => changePrimaryColor(),
             ),
+            Divider(), // Divider
+            ListTile(
+              title: Text('Open in browser'),
+              subtitle: Text('To work more efficiently'),
+              trailing: Switch(
+                value: swBrowser,
+                activeColor: Theme.of(context).accentColor,
+                onChanged: (bool value) => changeBrowser(value),
+              ),
+            ),
+            Divider(), // Divider
           ],
         ),
       ),
     );
   }
 
-  initTheme() {
-    setState(() {
-      Theme.of(context).brightness == Brightness.dark
-          ? switchTheme = true
-          : switchTheme = false;
-    });
-  }
-
   changeTheme(value) async {
-    final SharedPreferences prefs = await _prefs;
+    SharedPreferences prefs = await _prefs;
     DynamicTheme.of(context).setThemeData(ThemeData(
         accentColor: Theme.of(context).accentColor,
         brightness: Theme.of(context).brightness == Brightness.dark
             ? Brightness.light
             : Brightness.dark));
     setState(() {
-      switchTheme = value;
+      swTheme = value;
     });
-    await prefs.setString('theme', switchTheme ? 'dark' : 'light');
+    await prefs.setString('theme', swTheme ? 'dark' : 'light');
   }
 
-  initCountry() async {
-    final SharedPreferences prefs = await _prefs;
+  initStateCustome() async {
+    SharedPreferences prefs = await _prefs;
     setState(() {
       country = prefs.getString('country');
+      swBrowser = prefs.getBool('browser');
+      _local = Color(prefs.getInt('color') ?? 0xFF26A69A);
     });
   }
 
   showPickerArray(BuildContext context) async {
-    final SharedPreferences prefs = await _prefs;
+    SharedPreferences prefs = await _prefs;
     String country = prefs.getString('country');
     int selected = 0;
     Color textStyle = Theme.of(context).brightness == Brightness.dark
@@ -119,15 +133,18 @@ class SettingsState extends State<SettingsScreen> {
         ? Colors.grey[800]
         : Colors.white;
 
-
-    if (country == 'Russia') selected = 0;
-    else if (country == 'US') selected = 1;
-    else if (country == 'United Kingdom') selected = 2;
-    else if (country == 'Germany') selected = 3;
+    if (country == 'Russia')
+      selected = 0;
+    else if (country == 'US')
+      selected = 1;
+    else if (country == 'United Kingdom')
+      selected = 2;
+    else if (country == 'Germany')
+      selected = 3;
     else if (country == 'France') selected = 4;
 
     Picker(
-      selecteds: [selected],
+        selecteds: [selected],
         textStyle: TextStyle(color: textStyle, fontSize: 24),
         backgroundColor: backgroundColor,
         adapter: PickerDataAdapter<String>(
@@ -146,7 +163,7 @@ class SettingsState extends State<SettingsScreen> {
   }
 
   changePrimaryColor() async {
-    final SharedPreferences prefs = await _prefs;
+    SharedPreferences prefs = await _prefs;
     Color local = Color(prefs.getInt('color') ?? 0xFF26A69A);
 
     showDialog(
@@ -155,7 +172,7 @@ class SettingsState extends State<SettingsScreen> {
           title: Text('Primary color', style: TextStyle(fontSize: 24)),
           children: <Widget>[
             MaterialColorPicker(
-              selectedColor: local,
+                selectedColor: local,
                 onColorChange: (Color color) {
                   local = color;
                 },
@@ -197,6 +214,14 @@ class SettingsState extends State<SettingsScreen> {
             ),
           ],
         ));
+  }
+
+  changeBrowser(bool value) async {
+    SharedPreferences prefs = await _prefs;
+    await prefs.setBool('browser', value);
+    setState(() {
+      swBrowser = value;
+    });
   }
 }
 
