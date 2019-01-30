@@ -12,14 +12,10 @@ class Repository {
   // Get news from server
   Future<NewsModel> fetchSearchNews() => newsApiProvider.fetchSearchNews();
 
-  //
+  // Get favorite news from firebase
   Future<NewsModel> fetchLikedNews() => newsApiProvider.getFavoriteNews();
-
-
 
   addFavorit(val) => newsApiProvider.addToFiresstore(val);
 
   deliteFavorit(val) => newsApiProvider.deliteFromFirestore(val);
-
-
 }

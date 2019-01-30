@@ -8,7 +8,6 @@ class NewsBloc {
   final _newsSearchFetcher = PublishSubject<NewsModel>();
   final _newsLikeFetcher = PublishSubject<NewsModel>();
 
-
   Observable<NewsModel> get allNews => _newsFetcher.stream;
   Observable<NewsModel> get searchNews => _newsSearchFetcher.stream;
   Observable<NewsModel> get likeNews => _newsLikeFetcher.stream;
@@ -17,8 +16,6 @@ class NewsBloc {
     NewsModel newsModel = await _repository.fetchLikedNews();
     _newsLikeFetcher.sink.add(newsModel);
   }
-
-
 
   fetchAllNews() async {
     NewsModel newsModel = await _repository.fetchAllNews();

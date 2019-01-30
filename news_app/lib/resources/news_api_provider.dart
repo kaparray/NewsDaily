@@ -19,11 +19,14 @@ class NewsApiProvider {
     final SharedPreferences pref = await _prefs;
     String country = pref.getString('country');
 
-
-    if (country == 'Russia') cntry = 'ru';
-    else if (country == 'US') cntry = 'us';
-    else if (country == 'Germany') cntry = 'de';
-    else if (country == 'United Kingdom') cntry = 'gb';
+    if (country == 'Russia')
+      cntry = 'ru';
+    else if (country == 'US')
+      cntry = 'us';
+    else if (country == 'Germany')
+      cntry = 'de';
+    else if (country == 'United Kingdom')
+      cntry = 'gb';
     else if (country == 'France') cntry = 'fr';
 
     String url =
@@ -52,12 +55,14 @@ class NewsApiProvider {
     }
   }
 
-
-   Future<NewsModel> getFavoriteNews() async {
+  Future<NewsModel> getFavoriteNews() async {
     final NewsModel nm = NewsModel();
     List<Articles> list = List<Articles>();
-    var articles = await Firestore.instance.collection("users").document(await getMyUID()).get();
-    if(articles.data != null){
+    var articles = await Firestore.instance
+        .collection("users")
+        .document(await getMyUID())
+        .get();
+    if (articles.data != null) {
       for (int i = 0; i < articles.data.length; i++)
         list.add(Articles.fromJson(articles.data.values.toList()[i]));
     }

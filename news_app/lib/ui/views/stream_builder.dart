@@ -19,7 +19,8 @@ streamBuilder(val) {
           padding: EdgeInsets.all(20),
           child: Center(
             child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
+              valueColor:
+                  AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
             ),
           ),
         ));
