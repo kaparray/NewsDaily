@@ -53,7 +53,7 @@ class NewsBloc {
     _newsSearchFetcher.sink.add(newsModel);
   }
 
-  // Set and dellite from Firestore liked
+  // Set and delete from Firestore liked
   addFavorit(val) async => _repository.addFavorit(val);
   deliteFavorit(val) async => _repository.deliteFavorit(val);
 
