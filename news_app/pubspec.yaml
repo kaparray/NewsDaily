@@ -7,7 +7,7 @@ description: A new Flutter project.
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
-version: 1.0.0+1
+version: 1.0.1
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -26,6 +26,7 @@ dependencies:
   dynamic_theme: ^1.0.0
   flutter_picker: ^1.0.6
   flutter_material_color_picker: ^0.0.4
+  intl: ^0.15.7
 
 
   # The following adds the Cupertino Icons font to your application.
