@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:news_app/models/news_model.dart';
+import 'package:news_app/resources/news_api_provider.dart';
 import 'package:news_app/ui/screens/web_view.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,14 +36,47 @@ class ListItemBuild extends StatefulWidget {
 }
 
 class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
+  // Animations
   Animation colorAnimation;
   AnimationController colorAnimationController;
+  // List
+  List<String> _listLiked = [];
+  // Shared Preferences
+  SharedPreferences prefs;
+  // Icons
+  IconData icons;
+  // Height and len
+  double height = 150;
+  int maxline = 2;
+
+  initSharedPref() async {
+    prefs = await _prefs;
+    _listLiked = prefs.getStringList("liked");
+    if (_listLiked.indexOf(widget.model.url) >= 0)
+      icons = Icons.favorite;
+    else
+      icons = Icons.favorite_border;
+    setState(() {});
+  }
+
+  initHeight() {
+    if (widget.model.title.length >= 90) {
+      height += 10;
+      maxline++;
+    }
+    if (widget.model.title.length >= 110) {
+      height += 15;
+      maxline++;
+    }
+  }
 
   initState() {
+    initSharedPref();
+    initHeight();
     colorAnimationController = AnimationController(
         duration: const Duration(milliseconds: 700), vsync: this);
     colorAnimation =
-        Tween(begin: 1.0, end: 0.5).animate(colorAnimationController);
+        Tween(begin: 1.0, end: .5).animate(colorAnimationController);
     super.initState();
   }
 
@@ -60,7 +95,7 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
     );
   }
 
-  Container _buildItem(context) {
+  _buildItem(context) {
     String url = widget.model.urlToImage;
     var image = Image.network(url).image;
     image
@@ -73,6 +108,7 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
       url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
 
     return Container(
+      height: height,
       child: InkWell(
         onTap: () => logicWeb(widget.model, context),
         child: Card(
@@ -82,6 +118,7 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Container(
+                padding: EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   image: DecorationImage(
                       colorFilter: ColorFilter.mode(
@@ -90,27 +127,103 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
                       fit: BoxFit.cover,
                       image: image),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  textBaseline: TextBaseline.alphabetic,
-                  children: <Widget>[
-                    _textItemBuild(context, widget.model.title),
-                    IconButton(
-                      icon: Icon(
-                        Icons.share,
-                        color: Theme.of(context).accentColor,
-                      ),
-                      onPressed: () {
-                        Share.share(widget.model.url);
-                      },
-                    )
-                  ],
-                ),
+                child: _columnWithContent(),
               ),
             )),
       ),
     );
+  }
+
+  _columnWithContent() {
+    return Column(
+      children: <Widget>[
+        _headerItemBuild(),
+        _textItemBuild(),
+        _dateItemBuild(),
+      ],
+    );
+  }
+
+  _headerItemBuild() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          widget.model.source.name,
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        Container(
+          child: Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.share,
+                  color: Theme.of(context).accentColor,
+                ),
+                onPressed: () {
+                  Share.share(widget.model.url);
+                },
+              ),
+              IconButton(
+                icon: Icon(
+                  icons,
+                  color: Theme.of(context).accentColor,
+                ),
+                onPressed: () => _likeUiLogi(),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  _dateItemBuild() {
+    // Parse date to normal format
+    DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
+    final unformedDate = format.parse(widget.model.publishedAt);
+    Duration difference = unformedDate.difference(DateTime.now());
+
+    return Container(
+      padding: EdgeInsets.only(top: 12),
+      child: Text(
+        (int.tryParse(difference.inHours.abs().toString()) < 12)
+            ? difference.inHours.abs().toString() + " hours ago"
+            : difference.inDays.abs().toString() + " days ago",
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
+      alignment: Alignment.centerLeft,
+    );
+  }
+
+  _likeUiLogi() async {
+    if (_listLiked.indexOf(widget.model.url) < 0) {
+      icons = Icons.favorite;
+      _listLiked.add("${widget.model.url}");
+      await prefs.setStringList("liked", _listLiked);
+      await NewsApiProvider().addToFiresstore({
+        "url": widget.model.url,
+        "urlToImage": widget.model.urlToImage,
+        "title": widget.model.title,
+        "author": widget.model.author,
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
+      });
+    } else if (_listLiked.indexOf(widget.model.url) >= 0) {
+      icons = Icons.favorite_border;
+      num index = _listLiked.indexOf(widget.model.url);
+      _listLiked.removeAt(index);
+      await prefs.setStringList("liked", _listLiked);
+      await NewsApiProvider().deliteFromFirestore({
+        "url": widget.model.url,
+        "urlToImage": widget.model.urlToImage,
+        "title": widget.model.title,
+        "author": widget.model.author,
+        "publishedAt": widget.model.publishedAt,
+        "source": widget.model.source.toJson()
+      });
+    }
+    setState(() {});
   }
 
   logicWeb(Articles values, context) async {
@@ -132,16 +245,14 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
         MaterialPageRoute(builder: (context) => WebViewScreen(model: model)));
   }
 
-  _textItemBuild(BuildContext context, String text) {
-    return Container(
-      height: 120,
-      width: MediaQuery.of(context).size.width * 0.8,
-      padding: const EdgeInsets.all(10.0),
-      child: Text(
-        text,
-        textAlign: TextAlign.justify,
-        style: TextStyle(
-            fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+  _textItemBuild() {
+    return Flexible(
+      child: new Text(
+        widget.model.title,
+        maxLines: maxline,
+        overflow: TextOverflow.ellipsis,
+        style: new TextStyle(
+            fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
       ),
     );
   }

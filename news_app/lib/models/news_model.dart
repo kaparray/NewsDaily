@@ -54,8 +54,8 @@ class Articles {
     description = json['description'];
     url = json['url'];
     urlToImage = json['urlToImage'];
-    publishedAt = json['publishedAt'];
     content = json['content'];
+    publishedAt = json['publishedAt'];
   }
 
   Map<String, dynamic> toJson() {

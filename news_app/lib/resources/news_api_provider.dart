@@ -12,7 +12,7 @@ class NewsApiProvider {
 
   String cntry = 'us';
 
-  final _apiKey = 'ead93fedf9574cd0ab03790d1817a1f6';
+  final _apiKey = '53ea041b1e1c4c659b41767532da63f2';
 
   // Chech shared preference, push requset to newsapi.org server and parse to model
   Future<NewsModel> fetchNewsList() async {
