@@ -1,58 +1,69 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:news_app/ui/choose_interesting.dart';
-import 'package:news_app/blocs/interesting_bloc.dart';
-import 'package:news_app/ui/news_list.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:news_app/blocs/news_bloc.dart';
+import 'package:news_app/ui/bottom_nav_bar.dart';
+import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
-  startLogic();
+int color;
+String theme;
+
+void main() async {
+  await initApp();
+  runApp(App());
 }
 
-
-startLogic() async {
-  Directory docDir = await getApplicationDocumentsDirectory();
-  List listContent = docDir.listSync();
-  for (var fileOrDir in listContent)
-  {
-    if (fileOrDir is File && fileOrDir.path.split('/').last == 'local.db')
-      runApp(App(false));
+initApp() async {
+  final SharedPreferences prefs = await _prefs;
+  List<String> _list = [];
+  if (prefs.getBool('firtStart') == null) {
+    await prefs.setStringList('liked', _list);
+    await prefs.setString('country', 'US');
+    await prefs.setBool('firtStart', false);
+    await prefs.setInt('color', 0xFF26A69A);
+    await prefs.setString('theme', 'light');
+    await prefs.setBool('browser', true);
+  } else if (prefs.getBool('firtStart') == false) {
+    color = prefs.getInt('color');
+    theme = prefs.getString('theme');
   }
-  blocInteresting.getInteresting();
-  runApp(App(true));
 }
 
 @immutable
 class App extends StatefulWidget {
-
-  final bool _firstStart;
-
-  App(this._firstStart);
-
   @override
-  AppState createState() {
-    return new AppState();
-  }
+  createState() => AppState();
 }
 
 class AppState extends State<App> {
+  Brightness _brightness;
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: uiLogic(),
-      theme: ThemeData.dark(),
-      routes: {
-        "/news": (_) => new NewsList(),
-        "/choos_interesting": (_) => new NewsList()
-      },
-    );
+  void dispose() {
+    bloc.dispose();
+    super.dispose();
   }
 
-  Widget uiLogic() {
-    if (widget._firstStart == true) return ChoosInteresting();
-    else return NewsList();
+  @override
+  Widget build(BuildContext context) {
+    if (theme == 'dark')
+      _brightness = Brightness.dark;
+    else if (theme == 'light') _brightness = Brightness.light;
+
+    return DynamicTheme(
+        defaultBrightness: _brightness,
+        data: (brightness) => ThemeData(
+            brightness: _brightness, accentColor: Color(color ?? 0xFF26A69A)),
+        themedWidgetBuilder: (context, theme) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            home: BottomNavBar(),
+            theme: theme,
+            routes: {
+              "/news": (_) => BottomNavBar(),
+            },
+          );
+        });
   }
 }

@@ -1,5 +1,3 @@
-
-
 class NewsModel {
   String status;
   int totalResults;
@@ -7,7 +5,7 @@ class NewsModel {
 
   NewsModel({this.status, this.totalResults, this.articles});
 
-  NewsModel.fromJson(Map<String, dynamic> json) {
+  NewsModel.fromJson(Map<dynamic, dynamic> json) {
     status = json['status'];
     totalResults = json['totalResults'];
     if (json['articles'] != null) {
@@ -19,7 +17,7 @@ class NewsModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map<dynamic, dynamic>();
     data['status'] = this.status;
     data['totalResults'] = this.totalResults;
     if (this.articles != null) {
@@ -49,20 +47,19 @@ class Articles {
       this.publishedAt,
       this.content});
 
-  Articles.fromJson(Map<String, dynamic> json) {
-    source =
-        json['source'] != null ? new Source.fromJson(json['source']) : null;
+  Articles.fromJson(Map json) {
+    source = json['source'] != null ? Source.fromJson(json['source']) : null;
     author = json['author'];
     title = json['title'];
     description = json['description'];
     url = json['url'];
     urlToImage = json['urlToImage'];
-    publishedAt = json['publishedAt'];
     content = json['content'];
+    publishedAt = json['publishedAt'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map();
     if (this.source != null) {
       data['source'] = this.source.toJson();
     }
@@ -83,13 +80,13 @@ class Source {
 
   Source({this.id, this.name});
 
-  Source.fromJson(Map<String, dynamic> json) {
+  Source.fromJson(Map<dynamic, dynamic> json) {
     id = json['id'];
     name = json['name'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = new Map();
     data['id'] = this.id;
     data['name'] = this.name;
     return data;

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "145757579857",
+    "firebase_url": "https://newsapp-c16eb.firebaseio.com",
+    "project_id": "newsapp-c16eb",
+    "storage_bucket": "newsapp-c16eb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145757579857:android:8e57a176bac48fcb",
+        "android_client_info": {
+          "package_name": "com.kaparray.newsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "145757579857-ltnn78dqbj66a3sogogqsrksog1uj1ss.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAppMzhiok_6hFYANC0UcK742b-Jzst9L8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
