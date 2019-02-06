@@ -13,6 +13,7 @@ class NewsList extends StatefulWidget {
 class NewsListState extends State<NewsList> {
   @override
   void initState() {
+    setState(() {});
     scrollControllerNewsList = ScrollController(initialScrollOffset: 84);
     super.initState();
   }
@@ -31,7 +32,7 @@ class NewsListState extends State<NewsList> {
       child: CustomScrollView(
         controller: scrollControllerNewsList,
         slivers: <Widget>[
-          buildSearchBar(context, 'search'), // Serach
+          buildSearchBar(context), // Serach
           streamBuilder(bloc.allNews),
         ],
       ),

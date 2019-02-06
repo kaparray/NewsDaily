@@ -20,9 +20,14 @@ class SettingsState extends State<SettingsScreen> {
   String country = '';
   Color _local = Color(0x000);
 
+  bool initData;
+
   @override
   void initState() {
     scrollControllerSettings = ScrollController(initialScrollOffset: 84);
+    initStateCustome().then((_) {
+      setState((){});
+    });
     super.initState();
   }
 
@@ -32,9 +37,21 @@ class SettingsState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  // Init state logic
+  Future initStateCustome() async {
+    SharedPreferences prefs = await _prefs;
+      country = prefs.getString('country');
+      swBrowser = prefs.getBool('browser');
+      _local = Color(prefs.getInt('color') ?? 0xFF26A69A);
+      initData = true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    initStateCustome();
+    if (initData == false || initData == null) {
+      print(initData);
+      return LinearProgressIndicator();
+    }
     return SafeArea(
       child: SingleChildScrollView(
         controller: scrollControllerSettings,
@@ -56,6 +73,7 @@ class SettingsState extends State<SettingsScreen> {
               ),
             ),
             ListTile(
+              onTap: () => changeTheme(!swTheme),
               title: Text('Dark theme'),
               subtitle: Text('Enable dark theme throughout the app'),
               trailing: Switch(
@@ -85,6 +103,7 @@ class SettingsState extends State<SettingsScreen> {
             ),
             Divider(), // Divider
             ListTile(
+              onTap: () => changeBrowser(!swBrowser),
               title: Text('Open in browser'),
               subtitle: Text('To work more efficiently'),
               trailing: Switch(
@@ -100,6 +119,7 @@ class SettingsState extends State<SettingsScreen> {
     );
   }
 
+  // Theme Logic
   changeTheme(value) async {
     SharedPreferences prefs = await _prefs;
     DynamicTheme.of(context).setThemeData(ThemeData(
@@ -113,15 +133,7 @@ class SettingsState extends State<SettingsScreen> {
     await prefs.setString('theme', swTheme ? 'dark' : 'light');
   }
 
-  initStateCustome() async {
-    SharedPreferences prefs = await _prefs;
-    setState(() {
-      country = prefs.getString('country');
-      swBrowser = prefs.getBool('browser');
-      _local = Color(prefs.getInt('color') ?? 0xFF26A69A);
-    });
-  }
-
+  // Picer Logic
   showPickerArray(BuildContext context) async {
     SharedPreferences prefs = await _prefs;
     String country = prefs.getString('country');
@@ -162,6 +174,7 @@ class SettingsState extends State<SettingsScreen> {
         }).showDialog(context);
   }
 
+  // Change Coloro L
   changePrimaryColor() async {
     SharedPreferences prefs = await _prefs;
     Color local = Color(prefs.getInt('color') ?? 0xFF26A69A);

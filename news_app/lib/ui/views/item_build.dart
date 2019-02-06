@@ -102,6 +102,7 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
         .resolve(ImageConfiguration())
         .addListener((imageInfo, synchronousCall) {
       colorAnimationController.forward();
+      
     });
 
     if (url == null)
