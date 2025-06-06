@@ -10,28 +10,28 @@ description: A new Flutter project.
 version: 1.0.5
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  rxdart: ^0.18.0
-  http: any
-  webview_flutter: ^0.3.0
-  url_launcher: ^4.2.0+1
-  shared_preferences: ^0.4.3
-  share: ^0.5.3
-  cloud_firestore: ^0.8.2+3
-  uuid: ^1.0.3
-  dynamic_theme: ^1.0.0
-  flutter_picker: ^1.0.6
-  flutter_material_color_picker: ^0.0.4
-  intl: ^0.15.7
+  rxdart: ^0.27.7
+  http: ^0.13.6
+  webview_flutter: ^4.2.2
+  url_launcher: ^6.2.6
+  shared_preferences: ^2.2.2
+  share_plus: ^8.0.2
+  cloud_firestore: ^4.15.9
+  uuid: ^3.0.7
+  adaptive_theme: ^2.3.1
+  flutter_picker: ^2.1.0
+  flutter_material_color_picker: ^1.1.0+2
+  intl: ^0.18.1
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

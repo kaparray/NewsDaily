@@ -1,6 +1,7 @@
+// @dart=2.9
 import 'dart:convert';
 import 'package:flutter_picker/flutter_picker.dart';
-import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
@@ -122,11 +123,10 @@ class SettingsState extends State<SettingsScreen> {
   // Theme Logic
   changeTheme(value) async {
     SharedPreferences prefs = await _prefs;
-    DynamicTheme.of(context).setThemeData(ThemeData(
-        accentColor: Theme.of(context).accentColor,
-        brightness: Theme.of(context).brightness == Brightness.dark
-            ? Brightness.light
-            : Brightness.dark));
+    if (AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark)
+      AdaptiveTheme.of(context).setLight();
+    else
+      AdaptiveTheme.of(context).setDark();
     setState(() {
       swTheme = value;
     });
@@ -181,7 +181,7 @@ class SettingsState extends State<SettingsScreen> {
 
     showDialog(
         context: context,
-        child: SimpleDialog(
+        builder: (context) => SimpleDialog(
           title: Text('Primary color', style: TextStyle(fontSize: 24)),
           children: <Widget>[
             MaterialColorPicker(
@@ -209,16 +209,25 @@ class SettingsState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                FlatButton(
+                TextButton(
                     onPressed: () {
                       Navigator.pop(context, false);
                     },
                     child: Text("Cancel")),
-                FlatButton(
+                TextButton(
                     onPressed: () async {
-                      DynamicTheme.of(context).setThemeData(ThemeData(
-                          accentColor: local,
-                          brightness: Theme.of(context).brightness));
+                      AdaptiveTheme.of(context).setTheme(
+                        light: ThemeData(
+                          useMaterial3: true,
+                          brightness: Brightness.light,
+                          colorSchemeSeed: local,
+                        ),
+                        dark: ThemeData(
+                          useMaterial3: true,
+                          brightness: Brightness.dark,
+                          colorSchemeSeed: local,
+                        ),
+                      );
                       await prefs.setInt('color', local.value);
                       Navigator.pop(context, false);
                     },

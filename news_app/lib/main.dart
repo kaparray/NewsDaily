@@ -1,7 +1,8 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
-import 'package:dynamic_theme/dynamic_theme.dart';
+import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
@@ -10,8 +11,10 @@ int color;
 String theme;
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await initApp();
-  runApp(App());
+  final savedThemeMode = await AdaptiveTheme.getThemeMode();
+  runApp(App(savedThemeMode: savedThemeMode));
 }
 
 initApp() async {
@@ -32,12 +35,15 @@ initApp() async {
 
 @immutable
 class App extends StatefulWidget {
+  final AdaptiveThemeMode? savedThemeMode;
+
+  const App({Key key, this.savedThemeMode}) : super(key: key);
+
   @override
   createState() => AppState();
 }
 
 class AppState extends State<App> {
-  Brightness _brightness;
 
   @override
   void dispose() {
@@ -47,23 +53,35 @@ class AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-    if (theme == 'dark')
-      _brightness = Brightness.dark;
-    else if (theme == 'light') _brightness = Brightness.light;
+    final brightness = theme == 'dark' ? Brightness.dark : Brightness.light;
+    final seedColor = Color(color ?? 0xFF26A69A);
 
-    return DynamicTheme(
-        defaultBrightness: _brightness,
-        data: (brightness) => ThemeData(
-            brightness: _brightness, accentColor: Color(color ?? 0xFF26A69A)),
-        themedWidgetBuilder: (context, theme) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: BottomNavBar(),
-            theme: theme,
-            routes: {
-              "/news": (_) => BottomNavBar(),
-            },
-          );
-        });
+    return AdaptiveTheme(
+      light: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.light,
+        colorSchemeSeed: seedColor,
+      ),
+      dark: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        colorSchemeSeed: seedColor,
+      ),
+      initial: widget.savedThemeMode ??
+          (brightness == Brightness.dark
+              ? AdaptiveThemeMode.dark
+              : AdaptiveThemeMode.light),
+      builder: (themeData, darkTheme) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: BottomNavBar(),
+          theme: themeData,
+          darkTheme: darkTheme,
+          routes: {
+            "/news": (_) => BottomNavBar(),
+          },
+        );
+      },
+    );
   }
 }
