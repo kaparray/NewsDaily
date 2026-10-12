@@ -1,3 +1,4 @@
+// @dart=2.9
 import '../resources/repository.dart';
 import 'package:rxdart/rxdart.dart';
 import '../models/news_model.dart';
@@ -8,9 +9,9 @@ class NewsBloc {
   final _newsSearchFetcher = PublishSubject<NewsModel>();
   final _newsLikeFetcher = PublishSubject<NewsModel>();
 
-  Observable<NewsModel> get allNews => _newsFetcher.stream;
-  Observable<NewsModel> get searchNews => _newsSearchFetcher.stream;
-  Observable<NewsModel> get likeNews => _newsLikeFetcher.stream;
+  Stream<NewsModel> get allNews => _newsFetcher.stream;
+  Stream<NewsModel> get searchNews => _newsSearchFetcher.stream;
+  Stream<NewsModel> get likeNews => _newsLikeFetcher.stream;
 
   fetchLikedNews() async {
     NewsModel newsModel = await _repository.fetchLikedNews();

@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'dart:async';
 import 'package:http/http.dart' show Client;
 import 'package:shared_preferences/shared_preferences.dart';

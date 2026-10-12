@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/screens/liked_list.dart';
 import 'package:news_app/ui/screens/news_list.dart';
@@ -25,16 +26,16 @@ class BottomNavBarState extends State<BottomNavBar> {
         bottomNavigationBar: BottomNavigationBar(
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                icon: Icon(Icons.chrome_reader_mode), title: Text('News')),
+                icon: Icon(Icons.chrome_reader_mode), label: 'News'),
             BottomNavigationBarItem(
                 icon: Icon(Icons.favorite_border),
-                title: Text('Favorit'),
+                label: 'Favorit',
                 activeIcon: Icon(Icons.favorite)),
             BottomNavigationBarItem(
-                icon: Icon(Icons.settings), title: Text('Settings'))
+                icon: Icon(Icons.settings), label: 'Settings')
           ],
           currentIndex: _currentItem,
-          fixedColor: Theme.of(context).accentColor,
+          selectedItemColor: Theme.of(context).accentColor,
           onTap: _onItemTapped,
         ),
         body: _listWidgets[_currentItem]);

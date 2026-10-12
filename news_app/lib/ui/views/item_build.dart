@@ -1,9 +1,10 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/resources/news_api_provider.dart';
 import 'package:news_app/ui/screens/web_view.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

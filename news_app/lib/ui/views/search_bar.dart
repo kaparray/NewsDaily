@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:flutter/material.dart';
 import 'package:news_app/ui/screens/serch_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
