@@ -72,3 +72,7 @@ build/
 
 # Commit the app lockfile
 !pubspec.lock
+.flutter-plugins-dependencies
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/android/app/.cxx/
