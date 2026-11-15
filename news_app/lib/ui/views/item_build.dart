@@ -1,66 +1,93 @@
-// @dart=2.9
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:news_app/models/news_model.dart';
-import 'package:news_app/resources/news_api_provider.dart';
 import 'package:news_app/ui/screens/web_view.dart';
+import 'package:news_app/ui/utils/favorites.dart';
+import 'package:news_app/utils/news_utils.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+const _fallbackImage =
+    'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
 
-buildListSliver(NewsModel values, BuildContext context) {
-  if (values.articles.length == 0) {
+Widget buildListSliver(NewsModel values, BuildContext context) {
+  if (values.articles.isEmpty) {
     return SliverToBoxAdapter(
-        child: Container(
-      padding: EdgeInsets.all(20),
-      child: Center(
-          child: Text('You didn\'t like anything',
-              style: TextStyle(
-                  color: Theme.of(context).accentColor, fontSize: 24))),
-    ));
-  } else {
-    return SliverList(
-      delegate: SliverChildBuilderDelegate(
-          (context, index) => ListItemBuild(values.articles[index]),
-          childCount: values.articles.length),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        child: Center(
+          child: Text(
+            "You didn't like anything",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 24,
+            ),
+          ),
+        ),
+      ),
     );
   }
+  return SliverList(
+    delegate: SliverChildBuilderDelegate(
+      (context, index) => ListItemBuild(values.articles[index]),
+      childCount: values.articles.length,
+    ),
+  );
 }
 
 class ListItemBuild extends StatefulWidget {
   final Articles model;
-  ListItemBuild(this.model);
+  const ListItemBuild(this.model, {super.key});
 
-  createState() => ListItemState();
+  @override
+  State<ListItemBuild> createState() => ListItemState();
 }
 
 class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
-  // Animations
-  Animation colorAnimation;
-  AnimationController colorAnimationController;
-  // List
-  List<String> _listLiked = [];
-  // Shared Preferences
-  SharedPreferences prefs;
-  // Icons
-  IconData icons;
-  // Height and len
+  late final AnimationController colorAnimationController;
+  late final Animation<double> colorAnimation;
+  late final ImageProvider image;
+  ImageStream? _imageStream;
+  late final ImageStreamListener _imageListener;
+
+  bool _liked = false;
   double height = 150;
   int maxline = 2;
 
-  initSharedPref() async {
-    prefs = await _prefs;
-    _listLiked = prefs.getStringList("liked");
-    if (_listLiked.indexOf(widget.model.url) >= 0)
-      icons = Icons.favorite;
-    else
-      icons = Icons.favorite_border;
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    _initLiked();
+    _initHeight();
+    colorAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    );
+    colorAnimation = Tween(
+      begin: 1.0,
+      end: .5,
+    ).animate(colorAnimationController);
+    image = NetworkImage(widget.model.urlToImage ?? _fallbackImage);
+    _imageListener = ImageStreamListener(
+      (_, _) => colorAnimationController.forward(),
+      onError: (_, _) {},
+    );
   }
 
-  initHeight() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _imageStream?.removeListener(_imageListener);
+    _imageStream = image.resolve(createLocalImageConfiguration(context))
+      ..addListener(_imageListener);
+  }
+
+  Future<void> _initLiked() async {
+    final liked = await Favorites.isLiked(widget.model.url);
+    if (mounted) setState(() => _liked = liked);
+  }
+
+  void _initHeight() {
     if (widget.model.title.length >= 90) {
       height += 10;
       maxline++;
@@ -71,17 +98,9 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
     }
   }
 
-  initState() {
-    initSharedPref();
-    initHeight();
-    colorAnimationController = AnimationController(
-        duration: const Duration(milliseconds: 700), vsync: this);
-    colorAnimation =
-        Tween(begin: 1.0, end: .5).animate(colorAnimationController);
-    super.initState();
-  }
-
-  dispose() {
+  @override
+  void dispose() {
+    _imageStream?.removeListener(_imageListener);
     colorAnimationController.dispose();
     super.dispose();
   }
@@ -90,171 +109,130 @@ class ListItemState extends State<ListItemBuild> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: colorAnimation,
-      builder: (context, _) {
-        return _buildItem(context);
-      },
+      builder: (context, _) => _buildItem(context),
     );
   }
 
-  _buildItem(context) {
-    String url = widget.model.urlToImage;
-    var image = Image.network(url).image;
-    image
-        .resolve(ImageConfiguration())
-        .addListener((imageInfo, synchronousCall) {
-      colorAnimationController.forward();
-      
-    });
-
-    if (url == null)
-      url = 'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
-
-    return Container(
+  Widget _buildItem(BuildContext context) {
+    return SizedBox(
       height: height,
       child: InkWell(
         onTap: () => logicWeb(widget.model, context),
         child: Card(
-            color: Colors.black54,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Container(
-                padding: EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                      colorFilter: ColorFilter.mode(
-                          Colors.black54.withOpacity(colorAnimation.value),
-                          BlendMode.hardLight),
-                      fit: BoxFit.cover,
-                      image: image),
+          color: Colors.black54,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  colorFilter: ColorFilter.mode(
+                    Colors.black54.withValues(alpha: colorAnimation.value),
+                    BlendMode.hardLight,
+                  ),
+                  fit: BoxFit.cover,
+                  image: image,
+                  onError: (_, _) {},
                 ),
-                child: _columnWithContent(),
               ),
-            )),
+              child: Column(
+                children: <Widget>[
+                  _headerItemBuild(),
+                  _textItemBuild(),
+                  _dateItemBuild(),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  _columnWithContent() {
-    return Column(
-      children: <Widget>[
-        _headerItemBuild(),
-        _textItemBuild(),
-        _dateItemBuild(),
-      ],
-    );
-  }
-
-  _headerItemBuild() {
+  Widget _headerItemBuild() {
+    final accent = Theme.of(context).colorScheme.secondary;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Text(
-          widget.model.source.name,
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        Container(
-          child: Row(
-            children: <Widget>[
-              IconButton(
-                icon: Icon(
-                  Icons.share,
-                  color: Theme.of(context).accentColor,
-                ),
-                onPressed: () {
-                  Share.share(widget.model.url);
-                },
-              ),
-              IconButton(
-                icon: Icon(
-                  icons,
-                  color: Theme.of(context).accentColor,
-                ),
-                onPressed: () => _likeUiLogi(),
-              ),
-            ],
+        Flexible(
+          child: Text(
+            widget.model.source?.name ?? '',
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+        ),
+        Row(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.share, color: accent),
+              onPressed: () =>
+                  SharePlus.instance.share(ShareParams(text: widget.model.url)),
+            ),
+            IconButton(
+              icon: Icon(
+                _liked ? Icons.favorite : Icons.favorite_border,
+                color: accent,
+              ),
+              onPressed: _toggleLike,
+            ),
+          ],
         ),
       ],
     );
   }
 
-  _dateItemBuild() {
-    // Parse date to normal format
-    DateFormat format = DateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    final unformedDate = format.parse(widget.model.publishedAt);
-    Duration difference = unformedDate.difference(DateTime.now());
-
+  Widget _dateItemBuild() {
     return Container(
-      padding: EdgeInsets.only(top: 12),
-      child: Text(
-        (int.tryParse(difference.inHours.abs().toString()) < 12)
-            ? difference.inHours.abs().toString() + " hours ago"
-            : difference.inDays.abs().toString() + " days ago",
-        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-      ),
+      padding: const EdgeInsets.only(top: 12),
       alignment: Alignment.centerLeft,
+      child: Text(
+        timeAgo(widget.model.publishedAt),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 
-  _likeUiLogi() async {
-    if (_listLiked.indexOf(widget.model.url) < 0) {
-      icons = Icons.favorite;
-      _listLiked.add("${widget.model.url}");
-      await prefs.setStringList("liked", _listLiked);
-      await NewsApiProvider().addToFiresstore({
-        "url": widget.model.url,
-        "urlToImage": widget.model.urlToImage,
-        "title": widget.model.title,
-        "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt,
-        "source": widget.model.source.toJson()
-      });
-    } else if (_listLiked.indexOf(widget.model.url) >= 0) {
-      icons = Icons.favorite_border;
-      num index = _listLiked.indexOf(widget.model.url);
-      _listLiked.removeAt(index);
-      await prefs.setStringList("liked", _listLiked);
-      await NewsApiProvider().deliteFromFirestore({
-        "url": widget.model.url,
-        "urlToImage": widget.model.urlToImage,
-        "title": widget.model.title,
-        "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt,
-        "source": widget.model.source.toJson()
-      });
-    }
-    setState(() {});
+  Future<void> _toggleLike() async {
+    final liked = await Favorites.toggle(widget.model);
+    if (mounted) setState(() => _liked = liked);
   }
 
-  logicWeb(Articles values, context) async {
-    String url = values.url;
-    SharedPreferences prefs = await _prefs;
-    if (!prefs.getBool('browser'))
-      _openWebSite(values, context);
-    else if (prefs.getBool('browser')) {
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
+  Future<void> logicWeb(Articles values, BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final prefs = await SharedPreferences.getInstance();
+    final openInBrowser = prefs.getBool('browser') ?? false;
+    if (openInBrowser) {
+      final uri = Uri.parse(values.url);
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+        throw Exception('Could not launch ${values.url}');
       }
+    } else {
+      navigator.push(
+        MaterialPageRoute<void>(builder: (_) => WebViewScreen(model: values)),
+      );
     }
   }
 
-  _openWebSite(Articles model, context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WebViewScreen(model: model)));
-  }
-
-  _textItemBuild() {
+  Widget _textItemBuild() {
     return Flexible(
-      child: new Text(
+      child: Text(
         widget.model.title,
         maxLines: maxline,
         overflow: TextOverflow.ellipsis,
-        style: new TextStyle(
-            fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 16,
+          color: Colors.white,
+        ),
       ),
     );
   }

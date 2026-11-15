@@ -1,82 +1,51 @@
-// @dart=2.9
-import 'dart:async';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:news_app/models/news_model.dart';
-import 'package:news_app/resources/news_api_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:news_app/ui/utils/favorites.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-@immutable
 class WebViewScreen extends StatefulWidget {
-  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final Articles model;
 
-  WebViewScreen({this.model});
+  const WebViewScreen({super.key, required this.model});
 
   @override
   WebViewState createState() => WebViewState();
 }
 
 class WebViewState extends State<WebViewScreen> {
-  IconData icons;
-  List<String> _listLiked = [];
-  SharedPreferences prefs;
+  late final WebViewController _controller;
+  bool _liked = false;
 
-  initSharedPref() async {
-    prefs = await widget._prefs;
-    _listLiked = prefs.getStringList("liked");
-    if (_listLiked.indexOf(widget.model.url) >= 0)
-      icons = Icons.favorite;
-    else
-      icons = Icons.favorite_border;
-    setState(() {});
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(widget.model.url));
+    Favorites.isLiked(widget.model.url).then((liked) {
+      if (mounted) setState(() => _liked = liked);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    initSharedPref();
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).accentColor,
-        title: Text('${widget.model.source.name}'),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+        title: Text(widget.model.source?.name ?? ''),
         actions: <Widget>[
-          IconButton(icon: Icon(icons), onPressed: () => _likeUiLogi()),
+          IconButton(
+            icon: Icon(_liked ? Icons.favorite : Icons.favorite_border),
+            onPressed: _toggleLike,
+          ),
         ],
       ),
-      body: WebView(
-        initialUrl: widget.model.url,
-        javascriptMode: JavascriptMode.unrestricted,
-      ),
+      body: WebViewWidget(controller: _controller),
     );
   }
 
-  _likeUiLogi() async {
-    if (_listLiked.indexOf(widget.model.url) < 0) {
-      icons = Icons.favorite;
-      _listLiked.add("${widget.model.url}");
-      await prefs.setStringList("liked", _listLiked);
-      await NewsApiProvider().addToFiresstore({
-        "url": widget.model.url,
-        "urlToImage": widget.model.urlToImage,
-        "title": widget.model.title,
-        "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt,
-        "source": widget.model.source.toJson()
-      });
-    } else if (_listLiked.indexOf(widget.model.url) >= 0) {
-      icons = Icons.favorite_border;
-      num index = _listLiked.indexOf(widget.model.url);
-      _listLiked.removeAt(index);
-      await prefs.setStringList("liked", _listLiked);
-      await NewsApiProvider().deliteFromFirestore({
-        "url": widget.model.url,
-        "urlToImage": widget.model.urlToImage,
-        "title": widget.model.title,
-        "author": widget.model.author,
-        "publishedAt": widget.model.publishedAt,
-        "source": widget.model.source.toJson()
-      });
-    }
-    setState(() {});
+  Future<void> _toggleLike() async {
+    final liked = await Favorites.toggle(widget.model);
+    if (mounted) setState(() => _liked = liked);
   }
 }

@@ -1,31 +1,31 @@
-// @dart=2.9
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/views/item_build.dart';
 
-streamBuilder(val) {
-  return StreamBuilder(
-    stream: val,
+Widget streamBuilder(Stream<NewsModel> stream) {
+  return StreamBuilder<NewsModel>(
+    stream: stream,
     builder: (context, snapshot) {
       if (snapshot.hasData) {
-        return buildListSliver(snapshot.data, context);
-      } else if (snapshot.hashCode.toString() == 'apiKeyMissing') {
-        return SliverToBoxAdapter(
-          child: Center(
-            child: Text('Oppps! Error server'),
+        return buildListSliver(snapshot.data!, context);
+      } else if (snapshot.hasError) {
+        return const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Center(child: Text('Oops! Server error')),
           ),
         );
-      } else {
-        return SliverToBoxAdapter(
-            child: Container(
-          padding: EdgeInsets.all(20),
+      }
+      return SliverToBoxAdapter(
+        child: Container(
+          padding: const EdgeInsets.all(20),
           child: Center(
             child: CircularProgressIndicator(
-              valueColor:
-                  AlwaysStoppedAnimation<Color>(Theme.of(context).accentColor),
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
-        ));
-      }
+        ),
+      );
     },
   );
 }

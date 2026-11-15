@@ -1,9 +1,11 @@
-// @dart=2.9
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
-backToStart(ScrollController scrollController) async {
-  if (scrollController.positions.isNotEmpty) {
-    await scrollController.animateTo(0,
-        curve: Curves.ease, duration: Duration(seconds: 2));
+Future<void> backToStart(ScrollController? scrollController) async {
+  if (scrollController != null && scrollController.hasClients) {
+    await scrollController.animateTo(
+      0,
+      curve: Curves.ease,
+      duration: const Duration(seconds: 2),
+    );
   }
 }

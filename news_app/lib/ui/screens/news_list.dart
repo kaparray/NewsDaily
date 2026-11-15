@@ -1,41 +1,42 @@
-// @dart=2.9
+import 'package:material_ui/material_ui.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/views/search_bar.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
-import 'package:flutter/material.dart';
 
-ScrollController scrollControllerNewsList;
+ScrollController? scrollControllerNewsList;
 
 class NewsList extends StatefulWidget {
+  const NewsList({super.key});
+
   @override
-  createState() => NewsListState();
+  State<NewsList> createState() => NewsListState();
 }
 
 class NewsListState extends State<NewsList> {
+  final _controller = ScrollController(initialScrollOffset: 84);
+
   @override
   void initState() {
-    setState(() {});
-    scrollControllerNewsList = ScrollController(initialScrollOffset: 84);
     super.initState();
+    scrollControllerNewsList = _controller;
+    bloc.fetchAllNews();
   }
 
   @override
   void dispose() {
-    scrollControllerNewsList.dispose();
+    if (scrollControllerNewsList == _controller) {
+      scrollControllerNewsList = null;
+    }
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchAllNews();
-    setState(() {});
     return SafeArea(
       child: CustomScrollView(
-        controller: scrollControllerNewsList,
-        slivers: <Widget>[
-          buildSearchBar(context), // Serach
-          streamBuilder(bloc.allNews),
-        ],
+        controller: _controller,
+        slivers: <Widget>[buildSearchBar(context), streamBuilder(bloc.allNews)],
       ),
     );
   }

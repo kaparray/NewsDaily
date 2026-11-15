@@ -1,101 +1,91 @@
-// @dart=2.9
 import 'dart:async';
-import 'package:http/http.dart' show Client;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/news_model.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/news_model.dart';
+import '../utils/news_utils.dart';
+
 class NewsApiProvider {
-  Client client = Client();
-  final _prefs = SharedPreferences.getInstance();
+  NewsApiProvider({http.Client? client, FirebaseFirestore? firestore})
+    : client = client ?? http.Client(),
+      _firestore = firestore;
 
-  String cntry = 'us';
+  final http.Client client;
+  final FirebaseFirestore? _firestore;
 
-  final _apiKey = '53ea041b1e1c4c659b41767532da63f2';
+  FirebaseFirestore get firestore => _firestore ?? FirebaseFirestore.instance;
 
-  // Chech shared preference, push requset to newsapi.org server and parse to model
-  Future<NewsModel> fetchNewsList() async {
-    final SharedPreferences pref = await _prefs;
-    String country = pref.getString('country');
+  static const _apiKey = '53ea041b1e1c4c659b41767532da63f2';
 
-    if (country == 'Russia')
-      cntry = 'ru';
-    else if (country == 'US')
-      cntry = 'us';
-    else if (country == 'Germany')
-      cntry = 'de';
-    else if (country == 'United Kingdom')
-      cntry = 'gb';
-    else if (country == 'France') cntry = 'fr';
-
-    String url =
-        "https://newsapi.org/v2/top-headlines?country=$cntry&apiKey=$_apiKey";
-
-    final response = await client.get(url);
+  Future<NewsModel> _get(Uri uri) async {
+    final response = await client.get(uri);
     if (response.statusCode == 200) {
-      return NewsModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception("Faild to post!");
+      return NewsModel.fromJson(
+        json.decode(response.body) as Map<String, dynamic>,
+      );
     }
+    throw Exception('Failed to load news (${response.statusCode})');
+  }
+
+  /// Top headlines for the country stored in shared preferences.
+  Future<NewsModel> fetchNewsList() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = countryCode(prefs.getString('country'));
+    return _get(
+      Uri.https('newsapi.org', '/v2/top-headlines', {
+        'country': code,
+        'apiKey': _apiKey,
+      }),
+    );
   }
 
   Future<NewsModel> fetchSearchNews() async {
-    final SharedPreferences prefs = await _prefs;
-    String priorityTheme = prefs.getString("priorityTheme");
-
-    String url =
-        "https://newsapi.org/v2/everything?q=$priorityTheme&apiKey=$_apiKey";
-
-    final response = await client.get(url);
-    if (response.statusCode == 200) {
-      return NewsModel.fromJson(json.decode(response.body));
-    } else {
-      throw Exception("Faild to post!");
-    }
+    final prefs = await SharedPreferences.getInstance();
+    final query = prefs.getString('priorityTheme') ?? '';
+    return _get(
+      Uri.https('newsapi.org', '/v2/everything', {
+        'q': query,
+        'apiKey': _apiKey,
+      }),
+    );
   }
 
   Future<NewsModel> getFavoriteNews() async {
-    final NewsModel nm = NewsModel();
-    List<Articles> list = List<Articles>();
-    var articles = await Firestore.instance
-        .collection("users")
-        .document(await getMyUID())
-        .get();
-    if (articles.data != null) {
-      for (int i = 0; i < articles.data.length; i++)
-        list.add(Articles.fromJson(articles.data.values.toList()[i]));
+    final doc = await firestore.collection('users').doc(await getMyUID()).get();
+    final data = doc.data();
+    final list = <Articles>[
+      if (data != null)
+        for (final value in data.values)
+          if (value is Map) Articles.fromJson(value),
+    ];
+    return NewsModel(articles: list);
+  }
+
+  Future<String> getMyUID() async {
+    final prefs = await SharedPreferences.getInstance();
+    var uid = prefs.getString('id');
+    if (uid == null) {
+      uid = const Uuid().v4();
+      await prefs.setString('id', uid);
     }
-    nm.articles = list;
-    return nm;
+    return uid;
   }
 
-  generateUID() async {
-    final myUID = Uuid().v4();
-    (await _prefs).setString('id', myUID);
+  Future<void> addToFirestore(Map<String, dynamic> val) async {
+    final key = firestoreKeyForUrl(val['url'].toString());
+    await firestore.collection('users').doc(await getMyUID()).set({
+      key: val,
+    }, SetOptions(merge: true));
   }
 
-  getMyUID() async {
-    String uid = (await _prefs).getString('id');
-    return uid ?? generateUID();
-  }
-
-  addToFiresstore(val) async {
-    final String key =
-        val['url'].toString().replaceAll('/', '').replaceAll('.', '');
-    Firestore.instance
-        .collection('users')
-        .document(await getMyUID())
-        .setData({key: val}, merge: true);
-  }
-
-  deliteFromFirestore(val) async {
-    final String key =
-        val['url'].toString().replaceAll('/', '').replaceAll('.', '');
-    Firestore.instance
-        .collection('users')
-        .document(await getMyUID())
-        .updateData({key: FieldValue.delete()});
+  Future<void> deleteFromFirestore(Map<String, dynamic> val) async {
+    final key = firestoreKeyForUrl(val['url'].toString());
+    await firestore.collection('users').doc(await getMyUID()).update({
+      key: FieldValue.delete(),
+    });
   }
 }
