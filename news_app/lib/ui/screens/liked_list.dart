@@ -55,7 +55,10 @@ class LikedListState extends State<LikedList> {
               ),
             ),
           ),
-          streamBuilder(bloc.likeNews),
+          streamBuilder(
+            bloc.likeNews,
+            emptyMessage: "You didn't like anything",
+          ),
         ],
       ),
     );

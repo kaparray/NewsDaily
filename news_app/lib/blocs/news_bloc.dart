@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/news_model.dart';
@@ -25,6 +26,7 @@ class NewsBloc {
       final model = await fetch();
       if (!subject.isClosed) subject.add(model);
     } catch (e, st) {
+      debugPrint('NewsBloc: failed to load news: $e');
       if (!subject.isClosed) subject.addError(e, st);
     }
   }

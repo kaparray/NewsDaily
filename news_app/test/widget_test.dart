@@ -45,9 +45,26 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsNothing);
   });
 
-  testWidgets('empty list shows the empty favorites message', (tester) async {
+  testWidgets('empty list shows a generic empty message by default', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       _host(streamBuilder(Stream.value(NewsModel(articles: [])))),
+    );
+    await tester.pump();
+
+    expect(find.text('No news found'), findsOneWidget);
+    expect(find.text("You didn't like anything"), findsNothing);
+  });
+
+  testWidgets('empty list shows a custom empty message', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        streamBuilder(
+          Stream.value(NewsModel(articles: [])),
+          emptyMessage: "You didn't like anything",
+        ),
+      ),
     );
     await tester.pump();
 

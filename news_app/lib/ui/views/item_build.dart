@@ -10,14 +10,18 @@ import 'package:url_launcher/url_launcher.dart';
 const _fallbackImage =
     'https://avatars1.githubusercontent.com/u/31259204?s=40&v=1';
 
-Widget buildListSliver(NewsModel values, BuildContext context) {
+Widget buildListSliver(
+  NewsModel values,
+  BuildContext context, {
+  String emptyMessage = 'No news found',
+}) {
   if (values.articles.isEmpty) {
     return SliverToBoxAdapter(
       child: Container(
         padding: const EdgeInsets.all(20),
         child: Center(
           child: Text(
-            "You didn't like anything",
+            emptyMessage,
             style: TextStyle(
               color: Theme.of(context).colorScheme.secondary,
               fontSize: 24,
