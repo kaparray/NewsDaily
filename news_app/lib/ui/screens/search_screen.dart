@@ -28,40 +28,47 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: CustomScrollView(
-          controller: scrollController,
-          slivers: <Widget>[_customAppBar(), streamBuilder(bloc.searchNews)],
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) _clearQuery();
+      },
+      child: Scaffold(
+        body: RefreshIndicator(
+          onRefresh: bloc.fetchSearchNews,
+          edgeOffset: 64,
+          child: CustomScrollView(
+            controller: scrollController,
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: <Widget>[
+              SliverAppBar(
+                pinned: true,
+                leading: IconButton(
+                  tooltip: 'Back',
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                title: Text(
+                  widget.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              streamBuilder(
+                bloc.searchNews,
+                emptyMessage: 'No results',
+                emptyHint: 'Try a different keyword.',
+                emptyIcon: Icons.search_off,
+                onRetry: bloc.fetchSearchNews,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _customAppBar() {
-    return SliverToBoxAdapter(
-      child: Row(
-        children: <Widget>[
-          IconButton(icon: const Icon(Icons.arrow_back_ios), onPressed: goBack),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 48.0),
-              child: Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> goBack() async {
-    final navigator = Navigator.of(context);
+  Future<void> _clearQuery() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('priorityTheme');
-    navigator.pop();
   }
 }

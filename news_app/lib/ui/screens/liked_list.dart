@@ -12,7 +12,7 @@ class LikedList extends StatefulWidget {
 }
 
 class LikedListState extends State<LikedList> {
-  final _controller = ScrollController(initialScrollOffset: 84);
+  final _controller = ScrollController();
 
   @override
   void initState() {
@@ -32,32 +32,20 @@ class LikedListState extends State<LikedList> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return RefreshIndicator(
+      onRefresh: bloc.fetchLikedNews,
+      edgeOffset: 152,
       child: CustomScrollView(
         controller: _controller,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: <Widget>[
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
-                  width: 2,
-                ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              margin: const EdgeInsets.all(10),
-              padding: const EdgeInsets.all(6),
-              alignment: Alignment.center,
-              child: const Text(
-                'Your favorite news',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
-          ),
+          const SliverAppBar.large(title: Text('Favorites')),
           streamBuilder(
             bloc.likeNews,
             emptyMessage: "You didn't like anything",
+            emptyHint: 'Tap the heart on a story to save it here.',
+            emptyIcon: Icons.favorite_border,
+            onRetry: bloc.fetchLikedNews,
           ),
         ],
       ),

@@ -1,10 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:news_app/ui/views/item_build.dart';
+import 'package:news_app/ui/views/states.dart';
 
 Widget streamBuilder(
   Stream<NewsModel> stream, {
   String emptyMessage = 'No news found',
+  String? emptyHint,
+  IconData emptyIcon = Icons.newspaper_outlined,
+  VoidCallback? onRetry,
 }) {
   return StreamBuilder<NewsModel>(
     stream: stream,
@@ -14,25 +18,24 @@ Widget streamBuilder(
           snapshot.data!,
           context,
           emptyMessage: emptyMessage,
+          emptyHint: emptyHint,
+          emptyIcon: emptyIcon,
+          onRetry: onRetry,
         );
       } else if (snapshot.hasError) {
-        return const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Center(child: Text('Oops! Server error')),
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(
+            child: MessageState(
+              icon: Icons.cloud_off_outlined,
+              title: 'Oops! Server error',
+              message: 'Check your connection and try again.',
+              onRetry: onRetry,
+            ),
           ),
         );
       }
-      return SliverToBoxAdapter(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Center(
-            child: CircularProgressIndicator(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-        ),
-      );
+      return const SliverToBoxAdapter(child: SkeletonList());
     },
   );
 }

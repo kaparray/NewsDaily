@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
+import 'package:news_app/ui/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const defaultSeedColor = 0xFF26A69A;
@@ -38,12 +39,6 @@ Future<void> initApp() async {
   }
 }
 
-ThemeData buildTheme(Brightness brightness, Color seed) => ThemeData(
-  useMaterial3: true,
-  brightness: brightness,
-  colorSchemeSeed: seed,
-);
-
 class App extends StatefulWidget {
   final AdaptiveThemeMode? savedThemeMode;
 
@@ -72,6 +67,7 @@ class AppState extends State<App> {
           (theme == 'dark' ? AdaptiveThemeMode.dark : AdaptiveThemeMode.light),
       builder: (themeData, darkTheme) => MaterialApp(
         debugShowCheckedModeBanner: false,
+        title: 'News Daily',
         home: const BottomNavBar(),
         theme: themeData,
         darkTheme: darkTheme,

@@ -22,25 +22,26 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chrome_reader_mode),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentItem,
+        onDestinationSelected: _onItemTapped,
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
+            icon: Icon(Icons.newspaper_outlined),
+            selectedIcon: Icon(Icons.newspaper),
             label: 'News',
           ),
-          BottomNavigationBarItem(
+          NavigationDestination(
             icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
             label: 'Favorites',
-            activeIcon: Icon(Icons.favorite),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
             label: 'Settings',
           ),
         ],
-        currentIndex: _currentItem,
-        selectedItemColor: Theme.of(context).colorScheme.secondary,
-        onTap: _onItemTapped,
       ),
       body: _listWidgets[_currentItem],
     );
