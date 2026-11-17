@@ -1,91 +1,43 @@
-# NewsApp
-News app in Flutter with BLOC pattern
+# News Daily
 
-<img src="https://github.com/kaparray/NewsApp/blob/master/assetss/NewsAppFlutterAsset_2.jpeg" width="500">
+A news reader built with Flutter 3.50 and Material 3. It shows top headlines from [NewsAPI](https://newsapi.org), lets you search stories, save favorites, and pick the theme, accent color and news country.
 
+<p align="center">
+  <img src="assetss/news.png" width="260"/>
+  <img src="assetss/favorites.png" width="260"/>
+  <img src="assetss/settings.png" width="260"/>
+</p>
 
+## Features
+* **Feed:** top headlines as Material 3 cards with the source, publish time, preview, share and favorite actions
+* **Search:** full-text news search
+* **Favorites:** saved stories are stored locally on the device with `shared_preferences`
+* **Settings:** light and dark theme, primary accent color, news country, and opening stories in the in-app WebView or the default browser
 
-This example uses a CustomScrollView, JSON Rest API, BottonNavigationBar,SliverList, ClipRRect, Card, Progress Indicator, NetworkImage, Card, Column, Row, Container, InkWell, BoxDecoration.
+## Tech
+* Flutter 3.50 / Dart 3.10, Material 3
+* BLoC pattern with `rxdart` streams
+* iOS uses Swift Package Manager and the UIScene lifecycle (no CocoaPods)
 
+### Libraries
+* [rxdart](https://pub.dev/packages/rxdart)
+* [http](https://pub.dev/packages/http)
+* [webview_flutter](https://pub.dev/packages/webview_flutter)
+* [url_launcher](https://pub.dev/packages/url_launcher)
+* [shared_preferences](https://pub.dev/packages/shared_preferences)
+* [share_plus](https://pub.dev/packages/share_plus)
+* [adaptive_theme](https://pub.dev/packages/adaptive_theme)
+* [uuid](https://pub.dev/packages/uuid)
 
-
-### Library 
-* [*__rxdart__*](https://pub.dartlang.org/packages/rxdart)
-* [*__http__*](https://pub.dartlang.org/packages/http)
-* [*__webview_flutter__*](https://pub.dartlang.org/packages/webview_flutter)
-* [*__shared_preferences__*](https://pub.dartlang.org/packages/shared_preferences)
-* [*__share_plus__*](https://pub.dev/packages/share_plus)
-* [*__cloud_firestore__*](https://pub.dev/packages/cloud_firestore)
-* [*__uuid__*](https://pub.dev/packages/uuid)
-* [*__adaptive_theme__*](https://pub.dev/packages/adaptive_theme)
-* [*__flutter_picker__*](https://pub.dartlang.org/packages/flutter_picker)
-* [*__flutter_material_color_picker__*](https://pub.dartlang.org/packages/flutter_material_color_picker)
-
-### Bloc pattern
-
-*I used this pattern to design this application.*
-
-<img src="https://cdn-images-1.medium.com/max/1600/1*MqYPYKdNBiID0mZ-zyE-mA.png"  width="400">
-
-```dart
-class NewsBloc {
-  final _repository = Repository();
-  final _newsFetcher = PublishSubject<NewsModel>();
-  final _newsSearchFetcher = PublishSubject<NewsModel>();
-  final _newsLikeFetcher = PublishSubject<NewsModel>();
-
-  Observable<NewsModel> get allNews => _newsFetcher.stream;
-  Observable<NewsModel> get searchNews => _newsSearchFetcher.stream;
-  Observable<NewsModel> get likeNews => _newsLikeFetcher.stream;
-
-  fetchLikedNews() async {
-    NewsModel newsModel = await _repository.fetchLikedNews();
-    _newsLikeFetcher.sink.add(newsModel);
-  }
-
-  fetchAllNews() async {
-    NewsModel newsModel = await _repository.fetchAllNews();
-    _newsFetcher.sink.add(newsModel);
-  }
-
-  fetchSearchNews() async {
-    NewsModel newsModel = await _repository.fetchSearchNews();
-    _newsSearchFetcher.sink.add(newsModel);
-  }
-
-  // Set and delete from Firestore liked
-  addFavorit(val) async => _repository.addFavorit(val);
-  deliteFavorit(val) async => _repository.deliteFavorit(val);
-
-  dispose() {
-    _newsLikeFetcher.close();
-    _newsFetcher.close();
-    _newsSearchFetcher.close();
-  }
-}
-
-final bloc = NewsBloc();
+## Getting started
+```bash
+cd news_app
+flutter pub get
+flutter run
 ```
 
-### Screenshots
+## License
+Released under the [MIT license](LICENSE).
 
-<p align="center">
-  <img src="https://github.com/kaparray/NewsApp/blob/master/assetss/NewsAppFlutterAsset_3.jpeg" width="350"/>
-    <img src="https://github.com/kaparray/NewsApp/blob/master/assetss/NewsAppFlutterAsset_4.jpeg" width="350"/>
-
-</p>
-<p align="center">
-  <img src="https://github.com/kaparray/NewsApp/blob/master/assetss/NewsAppFlutterAsset_1.gif" width="500"/>
-</p>
-
-
-
-## Built With
-* [Flutter](https://flutter.io) - Crossplatform App Development Framework
-
-### License
-Released under the [MIT license](https://github.com/kaparray/NewsApp/blob/master/LICENSE)
-
-### Author
-
-Adeshchenko Kirill (Cyrill) ([@kaparray](https://www.linkedin.com/in/kirill-adeshchenko-b86362161/))
+## Author
+Kirill Adeshchenko ([@kaparray](https://www.linkedin.com/in/kirill-adeshchenko-b86362161/))

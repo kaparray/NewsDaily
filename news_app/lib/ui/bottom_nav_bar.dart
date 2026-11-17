@@ -1,20 +1,19 @@
-// @dart=2.9
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:news_app/ui/screens/liked_list.dart';
 import 'package:news_app/ui/screens/news_list.dart';
 import 'package:news_app/ui/screens/settings_screen.dart';
 import 'package:news_app/ui/utils/back_to_start.dart';
 
 class BottomNavBar extends StatefulWidget {
+  const BottomNavBar({super.key});
+
   @override
-  State<StatefulWidget> createState() {
-    return BottomNavBarState();
-  }
+  State<BottomNavBar> createState() => BottomNavBarState();
 }
 
 class BottomNavBarState extends State<BottomNavBar> {
-  num _currentItem = 0;
-  final _listWidgets = [
+  int _currentItem = 0;
+  static const _listWidgets = <Widget>[
     NewsList(),
     LikedList(),
     SettingsScreen(),
@@ -23,33 +22,39 @@ class BottomNavBarState extends State<BottomNavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        bottomNavigationBar: BottomNavigationBar(
-          items: <BottomNavigationBarItem>[
-            BottomNavigationBarItem(
-                icon: Icon(Icons.chrome_reader_mode), label: 'News'),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.favorite_border),
-                label: 'Favorit',
-                activeIcon: Icon(Icons.favorite)),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: 'Settings')
-          ],
-          currentIndex: _currentItem,
-          selectedItemColor: Theme.of(context).accentColor,
-          onTap: _onItemTapped,
-        ),
-        body: _listWidgets[_currentItem]);
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentItem,
+        onDestinationSelected: _onItemTapped,
+        destinations: const <NavigationDestination>[
+          NavigationDestination(
+            icon: Icon(Icons.newspaper_outlined),
+            selectedIcon: Icon(Icons.newspaper),
+            label: 'News',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.favorite_border),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+      ),
+      body: _listWidgets[_currentItem],
+    );
   }
 
-  _onItemTapped(int index) {
-    setState(() {
-      if (index == _currentItem && index == 0)
-        backToStart(scrollControllerNewsList);
-      if (index == _currentItem && index == 1)
-        backToStart(scrollControllerLikedList);
-      if (index == _currentItem && index == 2)
-        backToStart(scrollControllerSettings);
-      _currentItem = index;
-    });
+  void _onItemTapped(int index) {
+    if (index == _currentItem) {
+      backToStart(switch (index) {
+        0 => scrollControllerNewsList,
+        1 => scrollControllerLikedList,
+        _ => scrollControllerSettings,
+      });
+    }
+    setState(() => _currentItem = index);
   }
 }

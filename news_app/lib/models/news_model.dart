@@ -1,95 +1,97 @@
-// @dart=2.9
 class NewsModel {
-  String status;
-  int totalResults;
+  String? status;
+  int? totalResults;
   List<Articles> articles;
 
-  NewsModel({this.status, this.totalResults, this.articles});
+  NewsModel({this.status, this.totalResults, List<Articles>? articles})
+    : articles = articles ?? [];
 
-  NewsModel.fromJson(Map<dynamic, dynamic> json) {
-    status = json['status'];
-    totalResults = json['totalResults'];
-    if (json['articles'] != null) {
-      articles = new List<Articles>();
-      json['articles'].forEach((v) {
-        articles.add(new Articles.fromJson(v));
-      });
-    }
+  factory NewsModel.fromJson(Map<dynamic, dynamic> json) {
+    final rawArticles = json['articles'];
+    return NewsModel(
+      status: json['status'] as String?,
+      totalResults: json['totalResults'] as int?,
+      articles: rawArticles is List
+          ? rawArticles
+                .whereType<Map<dynamic, dynamic>>()
+                .map(Articles.fromJson)
+                .toList()
+          : [],
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<dynamic, dynamic>();
-    data['status'] = this.status;
-    data['totalResults'] = this.totalResults;
-    if (this.articles != null) {
-      data['articles'] = this.articles.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    'status': status,
+    'totalResults': totalResults,
+    'articles': articles.map((v) => v.toJson()).toList(),
+  };
 }
 
 class Articles {
-  Source source;
-  String author;
+  Source? source;
+  String? author;
   String title;
-  String description;
+  String? description;
   String url;
-  String urlToImage;
-  String publishedAt;
-  String content;
+  String? urlToImage;
+  String? publishedAt;
+  String? content;
 
-  Articles(
-      {this.source,
-      this.author,
-      this.title,
-      this.description,
-      this.url,
-      this.urlToImage,
-      this.publishedAt,
-      this.content});
+  Articles({
+    this.source,
+    this.author,
+    this.title = '',
+    this.description,
+    this.url = '',
+    this.urlToImage,
+    this.publishedAt,
+    this.content,
+  });
 
-  Articles.fromJson(Map json) {
-    source = json['source'] != null ? Source.fromJson(json['source']) : null;
-    author = json['author'];
-    title = json['title'];
-    description = json['description'];
-    url = json['url'];
-    urlToImage = json['urlToImage'];
-    content = json['content'];
-    publishedAt = json['publishedAt'];
+  factory Articles.fromJson(Map<dynamic, dynamic> json) {
+    final rawSource = json['source'];
+    return Articles(
+      source: rawSource is Map ? Source.fromJson(rawSource) : null,
+      author: json['author'] as String?,
+      title: json['title'] as String? ?? '',
+      description: json['description'] as String?,
+      url: json['url'] as String? ?? '',
+      urlToImage: json['urlToImage'] as String?,
+      publishedAt: json['publishedAt'] as String?,
+      content: json['content'] as String?,
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map();
-    if (this.source != null) {
-      data['source'] = this.source.toJson();
-    }
-    data['author'] = this.author;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['url'] = this.url;
-    data['urlToImage'] = this.urlToImage;
-    data['publishedAt'] = this.publishedAt;
-    data['content'] = this.content;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+    if (source != null) 'source': source!.toJson(),
+    'author': author,
+    'title': title,
+    'description': description,
+    'url': url,
+    'urlToImage': urlToImage,
+    'publishedAt': publishedAt,
+    'content': content,
+  };
+
+  /// Data saved on the device when an article is liked.
+  Map<String, dynamic> toFavoriteJson() => {
+    'url': url,
+    'urlToImage': urlToImage,
+    'title': title,
+    'author': author,
+    'publishedAt': publishedAt,
+    'source': source?.toJson(),
+  };
 }
 
 class Source {
-  String id;
-  String name;
+  String? id;
+  String? name;
 
   Source({this.id, this.name});
 
-  Source.fromJson(Map<dynamic, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-  }
+  factory Source.fromJson(Map<dynamic, dynamic> json) =>
+      Source(id: json['id'] as String?, name: json['name'] as String?);
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {'id': id, 'name': name};
 }

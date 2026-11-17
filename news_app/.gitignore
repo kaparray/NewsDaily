@@ -69,3 +69,14 @@ build/
 !**/ios/**/default.pbxuser
 !**/ios/**/default.perspectivev3
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
+
+# Commit the app lockfile
+!pubspec.lock
+.flutter-plugins-dependencies
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/flutter_export_environment.sh
+**/android/app/.cxx/
+build.log
+run.log
+apk.log
+screens/

@@ -1,53 +1,52 @@
-// @dart=2.9
+import 'package:material_ui/material_ui.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/views/stream_builder.dart';
-import 'package:flutter/material.dart';
 
-ScrollController scrollControllerLikedList;
+ScrollController? scrollControllerLikedList;
 
 class LikedList extends StatefulWidget {
+  const LikedList({super.key});
+
   @override
-  createState() => LikedListState();
+  State<LikedList> createState() => LikedListState();
 }
 
 class LikedListState extends State<LikedList> {
+  final _controller = ScrollController();
+
   @override
   void initState() {
-    scrollControllerLikedList = ScrollController(initialScrollOffset: 84);
     super.initState();
+    scrollControllerLikedList = _controller;
+    bloc.fetchLikedNews();
   }
 
   @override
   void dispose() {
-    scrollControllerLikedList.dispose();
+    if (scrollControllerLikedList == _controller) {
+      scrollControllerLikedList = null;
+    }
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    bloc.fetchLikedNews();
-    return SafeArea(
+    return RefreshIndicator(
+      onRefresh: bloc.fetchLikedNews,
+      edgeOffset: 152,
       child: CustomScrollView(
-        controller: scrollControllerLikedList,
+        controller: _controller,
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: <Widget>[
-          SliverToBoxAdapter(
-            child: Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).accentColor, width: 2),
-                  borderRadius: BorderRadius.circular(16)),
-              margin: EdgeInsets.only(
-                  bottom: 10, left: 10.0, right: 10.0, top: 10.0),
-              padding: EdgeInsets.all(6),
-              alignment: Alignment.center,
-              child: Text(
-                'You favorite news',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
+          const SliverAppBar.large(title: Text('Favorites')),
+          streamBuilder(
+            bloc.likeNews,
+            emptyMessage: "You didn't like anything",
+            emptyHint: 'Tap the heart on a story to save it here.',
+            emptyIcon: Icons.favorite_border,
+            onRetry: bloc.fetchLikedNews,
           ),
-          streamBuilder(bloc.likeNews),
         ],
       ),
     );

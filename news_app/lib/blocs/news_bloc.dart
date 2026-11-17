@@ -1,10 +1,15 @@
-// @dart=2.9
-import '../resources/repository.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
+
 import '../models/news_model.dart';
+import '../resources/repository.dart';
 
 class NewsBloc {
-  final _repository = Repository();
+  NewsBloc({Repository? repository}) : _repositoryOverride = repository;
+
+  final Repository? _repositoryOverride;
+  late final Repository _repository = _repositoryOverride ?? Repository();
+
   final _newsFetcher = PublishSubject<NewsModel>();
   final _newsSearchFetcher = PublishSubject<NewsModel>();
   final _newsLikeFetcher = PublishSubject<NewsModel>();
@@ -13,26 +18,33 @@ class NewsBloc {
   Stream<NewsModel> get searchNews => _newsSearchFetcher.stream;
   Stream<NewsModel> get likeNews => _newsLikeFetcher.stream;
 
-  fetchLikedNews() async {
-    NewsModel newsModel = await _repository.fetchLikedNews();
-    _newsLikeFetcher.sink.add(newsModel);
+  Future<void> _load(
+    Subject<NewsModel> subject,
+    Future<NewsModel> Function() fetch,
+  ) async {
+    try {
+      final model = await fetch();
+      if (!subject.isClosed) subject.add(model);
+    } catch (e, st) {
+      debugPrint('NewsBloc: failed to load news: $e');
+      if (!subject.isClosed) subject.addError(e, st);
+    }
   }
 
-  fetchAllNews() async {
-    NewsModel newsModel = await _repository.fetchAllNews();
-    _newsFetcher.sink.add(newsModel);
-  }
+  Future<void> fetchLikedNews() =>
+      _load(_newsLikeFetcher, _repository.fetchLikedNews);
 
-  fetchSearchNews() async {
-    NewsModel newsModel = await _repository.fetchSearchNews();
-    _newsSearchFetcher.sink.add(newsModel);
-  }
+  Future<void> fetchAllNews() => _load(_newsFetcher, _repository.fetchAllNews);
 
-  // Set and dellite from Firestore liked
-  addFavorit(val) async => _repository.addFavorit(val);
-  deliteFavorit(val) async => _repository.deliteFavorit(val);
+  Future<void> fetchSearchNews() =>
+      _load(_newsSearchFetcher, _repository.fetchSearchNews);
 
-  dispose() {
+  Future<void> addFavorite(Map<String, dynamic> val) =>
+      _repository.addFavorite(val);
+  Future<void> deleteFavorite(Map<String, dynamic> val) =>
+      _repository.deleteFavorite(val);
+
+  void dispose() {
     _newsLikeFetcher.close();
     _newsFetcher.close();
     _newsSearchFetcher.close();

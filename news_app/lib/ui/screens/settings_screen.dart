@@ -1,260 +1,279 @@
-// @dart=2.9
-import 'dart:convert';
-import 'package:flutter_picker/flutter_picker.dart';
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:news_app/main.dart' show defaultSeedColor;
+import 'package:news_app/ui/theme.dart';
+import 'package:news_app/utils/news_utils.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 
-Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+ScrollController? scrollControllerSettings;
 
-ScrollController scrollControllerSettings;
+/// Colors offered in the "Primary color" dialog.
+const primaryColorChoices = <MaterialColor>[
+  Colors.red,
+  Colors.pink,
+  Colors.purple,
+  Colors.deepPurple,
+  Colors.indigo,
+  Colors.blue,
+  Colors.lightBlue,
+  Colors.cyan,
+  Colors.teal,
+  Colors.green,
+  Colors.lightGreen,
+  Colors.lime,
+  Colors.yellow,
+  Colors.amber,
+  Colors.orange,
+];
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   @override
   SettingsState createState() => SettingsState();
 }
 
 class SettingsState extends State<SettingsScreen> {
+  final _controller = ScrollController(initialScrollOffset: 84);
   bool swBrowser = false;
-  bool swTheme = false;
   String country = '';
-  Color _local = Color(0x000);
-
-  bool initData;
+  Color _local = const Color(defaultSeedColor);
+  bool _initialized = false;
 
   @override
   void initState() {
-    scrollControllerSettings = ScrollController(initialScrollOffset: 84);
-    initStateCustome().then((_) {
-      setState((){});
-    });
     super.initState();
+    scrollControllerSettings = _controller;
+    _loadPrefs();
   }
 
   @override
   void dispose() {
-    scrollControllerSettings.dispose();
+    if (scrollControllerSettings == _controller) {
+      scrollControllerSettings = null;
+    }
+    _controller.dispose();
     super.dispose();
   }
 
-  // Init state logic
-  Future initStateCustome() async {
-    SharedPreferences prefs = await _prefs;
-      country = prefs.getString('country');
-      swBrowser = prefs.getBool('browser');
-      _local = Color(prefs.getInt('color') ?? 0xFF26A69A);
-      initData = true;
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      country = prefs.getString('country') ?? 'US';
+      swBrowser = prefs.getBool('browser') ?? false;
+      _local = Color(prefs.getInt('color') ?? defaultSeedColor);
+      _initialized = true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (initData == false || initData == null) {
-      print(initData);
-      return LinearProgressIndicator();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return CustomScrollView(
+      controller: _controller,
+      slivers: <Widget>[
+        const SliverAppBar.large(title: Text('Settings')),
+        if (!_initialized)
+          const SliverToBoxAdapter(child: LinearProgressIndicator())
+        else
+          SliverList.list(
+            children: <Widget>[
+              const _SectionHeader('Appearance'),
+              _SettingsGroup(
+                children: [
+                  SwitchListTile(
+                    secondary: const Icon(Icons.dark_mode_outlined),
+                    title: const Text('Dark theme'),
+                    subtitle: const Text('Easier on the eyes at night'),
+                    value: isDark,
+                    onChanged: changeTheme,
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.palette_outlined),
+                    title: const Text('Primary color'),
+                    subtitle: const Text('Accent used across the app'),
+                    trailing: Semantics(
+                      label: 'Current color',
+                      child: CircleAvatar(backgroundColor: _local, radius: 16),
+                    ),
+                    onTap: changePrimaryColor,
+                  ),
+                ],
+              ),
+              const _SectionHeader('Content'),
+              _SettingsGroup(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.public),
+                    title: const Text('News country'),
+                    subtitle: Text(country),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: showCountryPicker,
+                  ),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.open_in_browser),
+                    title: const Text('Open in browser'),
+                    subtitle: const Text(
+                      'Open stories in your default browser app',
+                    ),
+                    value: swBrowser,
+                    onChanged: changeBrowser,
+                  ),
+                ],
+              ),
+              const SizedBox(height: Insets.xl),
+            ],
+          ),
+      ],
+    );
+  }
+
+  Future<void> changeTheme(bool dark) async {
+    final adaptive = AdaptiveTheme.of(context);
+    if (dark) {
+      adaptive.setDark();
+    } else {
+      adaptive.setLight();
     }
-    return SafeArea(
-      child: SingleChildScrollView(
-        controller: scrollControllerSettings,
-        child: Column(
-          children: <Widget>[
-            Container(
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Theme.of(context).accentColor, width: 2),
-                  borderRadius: BorderRadius.circular(16)),
-              margin: EdgeInsets.only(
-                  bottom: 10, left: 10.0, right: 10.0, top: 10.0),
-              padding: EdgeInsets.all(6),
-              alignment: Alignment.center,
-              child: Text(
-                'Settings',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24),
-              ),
-            ),
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme', dark ? 'dark' : 'light');
+  }
+
+  Future<void> showCountryPicker() async {
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('News country'),
+        children: [
+          for (final name in countryCodes.keys)
             ListTile(
-              onTap: () => changeTheme(!swTheme),
-              title: Text('Dark theme'),
-              subtitle: Text('Enable dark theme throughout the app'),
-              trailing: Switch(
-                activeColor: Theme.of(context).accentColor,
-                onChanged: (bool value) => changeTheme(value),
-                value: Theme.of(context).brightness == Brightness.dark
-                    ? swTheme = true
-                    : swTheme = false,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: Insets.xl),
+              title: Text(name),
+              selected: name == country,
+              trailing: name == country ? const Icon(Icons.check) : null,
+              onTap: () => Navigator.pop(context, name),
             ),
-            Divider(), // Divider
-            ListTile(
-              title: Text('News country'),
-              subtitle: Text(country),
-              onTap: () => showPickerArray(context),
-            ),
-            Divider(), // Divider
-            ListTile(
-              title: Text('Primary color'),
-              trailing: Container(
-                child: CircleColor(
-                  color: _local,
-                  circleSize: 50,
+        ],
+      ),
+    );
+    if (selected == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('country', selected);
+    if (mounted) setState(() => country = selected);
+  }
+
+  Future<void> changePrimaryColor() async {
+    final adaptive = AdaptiveTheme.of(context);
+    final picked = await showDialog<Color>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Primary color'),
+        contentPadding: const EdgeInsets.all(Insets.xl),
+        children: [
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              for (final c in primaryColorChoices)
+                Semantics(
+                  button: true,
+                  selected: c.toARGB32() == _local.toARGB32(),
+                  label: 'Color ${primaryColorChoices.indexOf(c) + 1}',
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: () => Navigator.pop(context, c),
+                    child: CircleAvatar(
+                      backgroundColor: c,
+                      radius: 24,
+                      child: c.toARGB32() == _local.toARGB32()
+                          ? Icon(
+                              Icons.check,
+                              color:
+                                  ThemeData.estimateBrightnessForColor(c) ==
+                                      Brightness.dark
+                                  ? Colors.white
+                                  : Colors.black,
+                            )
+                          : null,
+                    ),
+                  ),
                 ),
-              ),
-              onTap: () => changePrimaryColor(),
+            ],
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
             ),
-            Divider(), // Divider
-            ListTile(
-              onTap: () => changeBrowser(!swBrowser),
-              title: Text('Open in browser'),
-              subtitle: Text('To work more efficiently'),
-              trailing: Switch(
-                value: swBrowser,
-                activeColor: Theme.of(context).accentColor,
-                onChanged: (bool value) => changeBrowser(value),
-              ),
-            ),
-            Divider(), // Divider
+          ),
+        ],
+      ),
+    );
+    if (picked == null) return;
+    final seed = Color(picked.toARGB32());
+    adaptive.setTheme(
+      light: buildTheme(Brightness.light, seed),
+      dark: buildTheme(Brightness.dark, seed),
+    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('color', seed.toARGB32());
+    if (mounted) setState(() => _local = seed);
+  }
+
+  Future<void> changeBrowser(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('browser', value);
+    if (mounted) setState(() => swBrowser = value);
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Insets.xl + Insets.sm,
+        Insets.lg,
+        Insets.xl,
+        Insets.sm,
+      ),
+      child: Semantics(
+        header: true,
+        child: Text(
+          title,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: theme.colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsGroup extends StatelessWidget {
+  final List<Widget> children;
+  const _SettingsGroup({required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Insets.lg),
+      child: Card(
+        child: Column(
+          children: [
+            for (var i = 0; i < children.length; i++) ...[
+              if (i > 0) const Divider(height: 1, indent: 72),
+              children[i],
+            ],
           ],
         ),
       ),
     );
   }
-
-  // Theme Logic
-  changeTheme(value) async {
-    SharedPreferences prefs = await _prefs;
-    if (AdaptiveTheme.of(context).mode == AdaptiveThemeMode.dark)
-      AdaptiveTheme.of(context).setLight();
-    else
-      AdaptiveTheme.of(context).setDark();
-    setState(() {
-      swTheme = value;
-    });
-    await prefs.setString('theme', swTheme ? 'dark' : 'light');
-  }
-
-  // Picer Logic
-  showPickerArray(BuildContext context) async {
-    SharedPreferences prefs = await _prefs;
-    String country = prefs.getString('country');
-    int selected = 0;
-    Color textStyle = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.grey[800];
-    Color backgroundColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.grey[800]
-        : Colors.white;
-
-    if (country == 'Russia')
-      selected = 0;
-    else if (country == 'US')
-      selected = 1;
-    else if (country == 'United Kingdom')
-      selected = 2;
-    else if (country == 'Germany')
-      selected = 3;
-    else if (country == 'France') selected = 4;
-
-    Picker(
-        selecteds: [selected],
-        textStyle: TextStyle(color: textStyle, fontSize: 24),
-        backgroundColor: backgroundColor,
-        adapter: PickerDataAdapter<String>(
-            pickerdata: JsonDecoder().convert(PickerCountry), isArray: true),
-        hideHeader: true,
-        title: new Text("Please Select"),
-        onConfirm: (Picker picker, List value) {
-          prefs.setString(
-              'country',
-              picker
-                  .getSelectedValues()
-                  .toString()
-                  .replaceAll('[', '')
-                  .replaceAll(']', ''));
-        }).showDialog(context);
-  }
-
-  // Change Coloro L
-  changePrimaryColor() async {
-    SharedPreferences prefs = await _prefs;
-    Color local = Color(prefs.getInt('color') ?? 0xFF26A69A);
-
-    showDialog(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: Text('Primary color', style: TextStyle(fontSize: 24)),
-          children: <Widget>[
-            MaterialColorPicker(
-                selectedColor: local,
-                onColorChange: (Color color) {
-                  local = color;
-                },
-                colors: [
-                  Colors.red,
-                  Colors.pink,
-                  Colors.purple,
-                  Colors.deepPurple,
-                  Colors.indigo,
-                  Colors.blue,
-                  Colors.lightBlue,
-                  Colors.cyan,
-                  Colors.teal,
-                  Colors.green,
-                  Colors.lightGreen,
-                  Colors.lime,
-                  Colors.yellow,
-                  Colors.amber,
-                  Colors.orange,
-                ]),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                TextButton(
-                    onPressed: () {
-                      Navigator.pop(context, false);
-                    },
-                    child: Text("Cancel")),
-                TextButton(
-                    onPressed: () async {
-                      AdaptiveTheme.of(context).setTheme(
-                        light: ThemeData(
-                          useMaterial3: true,
-                          brightness: Brightness.light,
-                          colorSchemeSeed: local,
-                        ),
-                        dark: ThemeData(
-                          useMaterial3: true,
-                          brightness: Brightness.dark,
-                          colorSchemeSeed: local,
-                        ),
-                      );
-                      await prefs.setInt('color', local.value);
-                      Navigator.pop(context, false);
-                    },
-                    child: Text("Confirm"))
-              ],
-            ),
-          ],
-        ));
-  }
-
-  changeBrowser(bool value) async {
-    SharedPreferences prefs = await _prefs;
-    await prefs.setBool('browser', value);
-    setState(() {
-      swBrowser = value;
-    });
-  }
 }
-
-const PickerCountry = '''
-[
-    [
-        "Russia",
-        "US",
-        "United Kingdom",
-        "Germany",
-        "France"
-    ]
-]
-    ''';
