@@ -1,23 +1,19 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:uuid/uuid.dart';
 
 import '../models/news_model.dart';
 import '../utils/news_utils.dart';
 
 class NewsApiProvider {
-  NewsApiProvider({http.Client? client, FirebaseFirestore? firestore})
-    : client = client ?? http.Client(),
-      _firestore = firestore;
+  NewsApiProvider({http.Client? client}) : client = client ?? http.Client();
 
   final http.Client client;
-  final FirebaseFirestore? _firestore;
 
-  FirebaseFirestore get firestore => _firestore ?? FirebaseFirestore.instance;
+  /// Shared preferences key holding liked articles as JSON strings.
+  static const favoritesKey = 'favorites';
 
   static const _apiKey = '53ea041b1e1c4c659b41767532da63f2';
 
@@ -54,38 +50,33 @@ class NewsApiProvider {
     );
   }
 
+  /// Favorites are stored locally on the device (SharedPreferences on
+  /// Android, NSUserDefaults on iOS).
   Future<NewsModel> getFavoriteNews() async {
-    final doc = await firestore.collection('users').doc(await getMyUID()).get();
-    final data = doc.data();
-    final list = <Articles>[
-      if (data != null)
-        for (final value in data.values)
-          if (value is Map) Articles.fromJson(value),
-    ];
-    return NewsModel(articles: list);
-  }
-
-  Future<String> getMyUID() async {
     final prefs = await SharedPreferences.getInstance();
-    var uid = prefs.getString('id');
-    if (uid == null) {
-      uid = const Uuid().v4();
-      await prefs.setString('id', uid);
-    }
-    return uid;
+    final list = <Articles>[
+      for (final raw in prefs.getStringList(favoritesKey) ?? const <String>[])
+        Articles.fromJson(json.decode(raw) as Map<String, dynamic>),
+    ];
+    return NewsModel(articles: list.reversed.toList());
   }
 
-  Future<void> addToFirestore(Map<String, dynamic> val) async {
-    final key = firestoreKeyForUrl(val['url'].toString());
-    await firestore.collection('users').doc(await getMyUID()).set({
-      key: val,
-    }, SetOptions(merge: true));
+  Future<void> addFavorite(Map<String, dynamic> val) async {
+    final prefs = await SharedPreferences.getInstance();
+    final url = val['url'];
+    final list = (prefs.getStringList(favoritesKey) ?? const <String>[])
+        .where((raw) => (json.decode(raw) as Map)['url'] != url)
+        .toList()
+      ..add(json.encode(val));
+    await prefs.setStringList(favoritesKey, list);
   }
 
-  Future<void> deleteFromFirestore(Map<String, dynamic> val) async {
-    final key = firestoreKeyForUrl(val['url'].toString());
-    await firestore.collection('users').doc(await getMyUID()).update({
-      key: FieldValue.delete(),
-    });
+  Future<void> deleteFavorite(Map<String, dynamic> val) async {
+    final prefs = await SharedPreferences.getInstance();
+    final url = val['url'];
+    final list = (prefs.getStringList(favoritesKey) ?? const <String>[])
+        .where((raw) => (json.decode(raw) as Map)['url'] != url)
+        .toList();
+    await prefs.setStringList(favoritesKey, list);
   }
 }

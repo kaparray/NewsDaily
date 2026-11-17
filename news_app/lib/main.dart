@@ -1,5 +1,4 @@
 import 'package:adaptive_theme/adaptive_theme.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/ui/bottom_nav_bar.dart';
@@ -13,12 +12,6 @@ String? theme;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  try {
-    // Uses android/app/google-services.json (or GoogleService-Info.plist).
-    await Firebase.initializeApp();
-  } catch (e) {
-    debugPrint('Firebase not initialized: $e');
-  }
   await initApp();
   final savedThemeMode = await AdaptiveTheme.getThemeMode();
   runApp(App(savedThemeMode: savedThemeMode));

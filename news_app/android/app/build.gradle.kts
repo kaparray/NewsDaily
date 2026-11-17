@@ -7,12 +7,6 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Firebase: only apply google-services when the config file is present so the
-// project still builds on machines without google-services.json.
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
-}
-
 // Release signing is read from android/key.properties when it (and the
 // keystore it points to) exist; otherwise release builds use the debug key.
 val keystoreProperties = Properties()

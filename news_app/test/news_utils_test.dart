@@ -12,10 +12,6 @@ void main() {
     expect(countryCode('Atlantis'), 'us');
   });
 
-  test('firestoreKeyForUrl strips slashes and dots', () {
-    expect(firestoreKeyForUrl('https://a.b/c.d'), 'https:abcd');
-  });
-
   group('timeAgo', () {
     final now = DateTime.utc(2024, 1, 10, 12);
 
