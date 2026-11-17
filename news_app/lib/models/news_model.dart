@@ -73,7 +73,7 @@ class Articles {
     'content': content,
   };
 
-  /// Data stored in Firestore when an article is liked.
+  /// Data saved on the device when an article is liked.
   Map<String, dynamic> toFavoriteJson() => {
     'url': url,
     'urlToImage': urlToImage,

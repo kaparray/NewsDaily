@@ -2,8 +2,8 @@ import 'package:news_app/blocs/news_bloc.dart';
 import 'package:news_app/models/news_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Local cache of liked article URLs backed by shared preferences, mirrored to
-/// Firestore through the bloc.
+/// Local cache of liked article URLs backed by shared preferences, with the full
+/// article data saved locally through the bloc.
 class Favorites {
   static const _key = 'liked';
 
@@ -23,15 +23,10 @@ class Favorites {
       liked.remove(article.url);
     }
     await prefs.setStringList(_key, liked);
-    try {
-      if (nowLiked) {
-        await bloc.addFavorite(article.toFavoriteJson());
-      } else {
-        await bloc.deleteFavorite(article.toFavoriteJson());
-      }
-    } catch (_) {
-      // Firestore may be unavailable (no network / no Firebase config); the
-      // local state is still updated.
+    if (nowLiked) {
+      await bloc.addFavorite(article.toFavoriteJson());
+    } else {
+      await bloc.deleteFavorite(article.toFavoriteJson());
     }
     return nowLiked;
   }

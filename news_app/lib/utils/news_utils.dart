@@ -10,10 +10,6 @@ const Map<String, String> countryCodes = {
 /// Returns the newsapi.org country code for [country], defaulting to `us`.
 String countryCode(String? country) => countryCodes[country] ?? 'us';
 
-/// Firestore field key derived from an article URL.
-String firestoreKeyForUrl(String url) =>
-    url.replaceAll('/', '').replaceAll('.', '');
-
 /// Human readable age of an article, e.g. "3 hours ago" or "2 days ago".
 String timeAgo(String? publishedAt, {DateTime? now}) {
   if (publishedAt == null) return '';

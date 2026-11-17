@@ -15,12 +15,12 @@ class Repository {
   /// Search news on the server.
   Future<NewsModel> fetchSearchNews() => newsApiProvider.fetchSearchNews();
 
-  /// Get favorite news from Firestore.
+  /// Get favorite news stored on the device.
   Future<NewsModel> fetchLikedNews() => newsApiProvider.getFavoriteNews();
 
   Future<void> addFavorite(Map<String, dynamic> val) =>
-      newsApiProvider.addToFirestore(val);
+      newsApiProvider.addFavorite(val);
 
   Future<void> deleteFavorite(Map<String, dynamic> val) =>
-      newsApiProvider.deleteFromFirestore(val);
+      newsApiProvider.deleteFavorite(val);
 }
