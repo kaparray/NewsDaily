@@ -47,7 +47,7 @@ void main() {
     expect(again.toJson(), model.toJson());
   });
 
-  test('favorite json contains the fields stored in Firestore', () {
+  test('favorite json contains the fields saved for favorites', () {
     final article = NewsModel.fromJson(json).articles.first;
     expect(article.toFavoriteJson(), {
       'url': 'https://bbc.co.uk/1',
